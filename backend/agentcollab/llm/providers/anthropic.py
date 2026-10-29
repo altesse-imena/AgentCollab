@@ -1,4 +1,9 @@
-from .base import ProviderRefusal, ProviderResponse, TransientProviderError
+from .base import (
+    ProviderRefusal,
+    ProviderResponse,
+    TransientProviderError,
+    is_retryable_status,
+)
 
 # Models that accept server-side refusal fallbacks ("default" routing)
 FALLBACK_MODELS = {"claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"}
@@ -12,12 +17,18 @@ def split_system(messages: list[dict]) -> tuple[str | None, list[dict]]:
 
 class AnthropicProvider:
     def __init__(
-        self, api_key: str | None = None, timeout_s: float = 300.0, max_tokens: int = 16000
+        self,
+        api_key: str | None = None,
+        timeout_s: float = 300.0,
+        max_tokens: int = 16000,
+        http_client=None,
     ):
         import anthropic
 
         self._anthropic = anthropic
-        self._client = anthropic.Anthropic(api_key=api_key, timeout=timeout_s, max_retries=0)
+        self._client = anthropic.Anthropic(
+            api_key=api_key, timeout=timeout_s, max_retries=0, http_client=http_client
+        )
         self._max_tokens = max_tokens
 
     def chat(self, model: str, messages: list[dict], json_mode: bool) -> ProviderResponse:
@@ -39,13 +50,12 @@ class AnthropicProvider:
                 )
             else:
                 resp = self._client.messages.create(**kwargs)
-        except (
-            self._anthropic.RateLimitError,
-            self._anthropic.APITimeoutError,
-            self._anthropic.APIConnectionError,
-            self._anthropic.InternalServerError,
-        ) as e:
+        except (self._anthropic.APITimeoutError, self._anthropic.APIConnectionError) as e:
             raise TransientProviderError(str(e)) from e
+        except self._anthropic.APIStatusError as e:
+            if is_retryable_status(e.status_code):
+                raise TransientProviderError(str(e)) from e
+            raise
 
         if resp.stop_reason == "refusal":
             details = getattr(resp, "stop_details", None)

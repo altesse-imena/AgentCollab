@@ -1,30 +1,37 @@
-from .base import ProviderResponse, TransientProviderError
+from .base import ProviderResponse, TransientProviderError, is_retryable_status
 
 
 class OpenAIProvider:
     """OpenAI, or any OpenAI-compatible API (OpenRouter, Groq, Together, Ollama...) via base_url."""
 
     def __init__(
-        self, api_key: str | None = None, base_url: str | None = None, timeout_s: float = 90.0
+        self,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        timeout_s: float = 90.0,
+        http_client=None,
     ):
         import openai
 
         self._openai = openai
         self._client = openai.OpenAI(
-            api_key=api_key, base_url=base_url, timeout=timeout_s, max_retries=0
+            api_key=api_key,
+            base_url=base_url,
+            timeout=timeout_s,
+            max_retries=0,
+            http_client=http_client,
         )
 
     def chat(self, model: str, messages: list[dict], json_mode: bool) -> ProviderResponse:
         kwargs = {"response_format": {"type": "json_object"}} if json_mode else {}
         try:
             resp = self._client.chat.completions.create(model=model, messages=messages, **kwargs)
-        except (
-            self._openai.RateLimitError,
-            self._openai.APITimeoutError,
-            self._openai.APIConnectionError,
-            self._openai.InternalServerError,
-        ) as e:
+        except (self._openai.APITimeoutError, self._openai.APIConnectionError) as e:
             raise TransientProviderError(str(e)) from e
+        except self._openai.APIStatusError as e:
+            if is_retryable_status(e.status_code):
+                raise TransientProviderError(str(e)) from e
+            raise
 
         usage = resp.usage
         details = getattr(usage, "prompt_tokens_details", None)

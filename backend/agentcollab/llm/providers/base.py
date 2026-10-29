@@ -16,6 +16,11 @@ class TransientProviderError(Exception):
     """A failure worth retrying: rate limits, timeouts, 5xx errors."""
 
 
+def is_retryable_status(status: int | None) -> bool:
+    """429 and every 5xx (including Anthropic's 529 "overloaded") are worth retrying."""
+    return status is not None and (status == 429 or status >= 500)
+
+
 class ProviderRefusal(Exception):
     """The model declined the request. Retrying the same request won't help."""
 
