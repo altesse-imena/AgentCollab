@@ -79,7 +79,8 @@ export function Hero({
   const nodes = useAmbientNodes()
   const figures = [
     ['4', 'AI agents per run'],
-    [stats.finished ? `${Math.round(stats.passRate * 100)}%` : '–', 'of recorded runs pass'],
+    // Not a pass rate: the demo shows hand-picked runs, so a rate would overstate results
+    [stats.finished ? String(stats.finished) : '–', 'recorded runs to explore'],
     [stats.finished ? `$${stats.avgCost.toFixed(3)}` : '–', 'average cost per run'],
     [stats.avgSeconds ? formatDuration(stats.avgSeconds) : '–', 'average time to a result'],
   ]

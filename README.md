@@ -136,6 +136,11 @@ solution.
 
 **Results:** _not measured yet._ Run `scripts/measure-costs.sh` and paste its table here.
 
+On a free tier, mind the daily caps: one pass of the benchmark uses roughly 150,000–250,000
+tokens, and Groq's free tier allows 200,000 tokens per model per day, so run each pass on a
+separate day (or use a paid key). Calls that hit a daily cap fail straight away with a
+"rate limit" error instead of counting as a wrong answer.
+
 ## Deployment
 
 The [`Dockerfile`](Dockerfile) builds one image that serves the API and the UI. By default it
