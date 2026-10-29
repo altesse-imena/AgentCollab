@@ -182,7 +182,9 @@ public server that allows live runs, cap spending with:
 | `backend/agentcollab/sandbox/` | Docker test runner |
 | `backend/agentcollab/github/` | GitHub App client and issue handler |
 | `backend/agentcollab/main.py` | HTTP + WebSocket API |
-| `frontend/src/` | React UI; `lib/runState.ts` turns events into what's shown |
+| `frontend/src/components/home/` | landing page: hero, run gallery, live-run panel |
+| `frontend/src/components/run/` | run page: the agent stage (Watch) and the case study (Story) |
+| `frontend/src/lib/` | `runState.ts` turns events into what's shown; `story.ts` puts runs into plain words |
 | `evals/tasks/` | benchmark tasks |
 
 ## Development
