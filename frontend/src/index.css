@@ -1,20 +1,129 @@
 @import 'tailwindcss';
 
+/* Same design language as altesseimena.com: ultramarine accent, Jost headings, Inter text,
+   frosted cards, pill buttons, and a light/dark theme (dark by default). */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Jost', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-  --color-brand-300: #8fa4fa;
-  --color-brand-400: #6985f7;
-  --color-brand-500: #4166f5;
-  --color-brand-600: #2548e4;
+
+  /* Brand accent, built around ultramarine blue (#4166F5) */
+  --color-ultramarine-50: #f0f3ff;
+  --color-ultramarine-100: #dde3fe;
+  --color-ultramarine-200: #bac8fc;
+  --color-ultramarine-300: #8fa4fa;
+  --color-ultramarine-400: #6985f7;
+  --color-ultramarine-500: #4166f5;
+  --color-ultramarine-600: #2548e4;
+  --color-ultramarine-700: #1c38c4;
+  --color-ultramarine-800: #1a2e9e;
+  --color-ultramarine-900: #152379;
+
+  /* Theme tokens: light values here, dark values under .dark below */
+  --color-canvas: #f8fafc; /* page background */
+  --color-card: rgb(255 255 255 / 0.9); /* panels */
+  --color-sunken: #f1f5f9; /* inputs and code blocks */
+  --color-hover: #f1f5f9;
+  --color-raised: #e2e8f0; /* selected or pressed */
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+  --color-ink: #0f172a; /* headings and emphasis */
+  --color-body: #334155;
+  --color-muted: #475569;
+  --color-faint: #64748b;
+  --color-dim: #cbd5e1; /* idle dots, diff gutter */
+  --color-accent: #1c38c4; /* accent text and links */
+  --color-good: #047857;
+  --color-warn: #b45309;
+  --color-bad: #be123c;
+  --color-edge: #cbd5e1; /* idle graph edges and grid dots */
+  --color-edge-label: #ffffff;
+
+  --animate-fade-up: fade-up 0.35s ease-out both;
+  @keyframes fade-up {
+    0% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
-html,
-body,
-#root {
-  height: 100%;
+@layer base {
+  .dark {
+    --color-canvas: #0a0f1c;
+    --color-card: rgb(17 24 39 / 0.5);
+    --color-sunken: #070b15;
+    --color-hover: rgb(31 41 55 / 0.6);
+    --color-raised: #263142;
+    --color-line: rgb(55 65 81 / 0.5);
+    --color-line-strong: #374151;
+    --color-ink: #ffffff;
+    --color-body: #cbd5e1;
+    --color-muted: #9ca3af;
+    --color-faint: #6b7280;
+    --color-dim: #374151;
+    --color-accent: #8fa4fa;
+    --color-good: #6ee7b7;
+    --color-warn: #fcd34d;
+    --color-bad: #fda4af;
+    --color-edge: #334155;
+    --color-edge-label: #0a0f1c;
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-body antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    font-weight: 400;
+  }
+
+  ::selection {
+    @apply bg-ultramarine-500/20 text-ultramarine-400;
+  }
 }
 
-body {
-  @apply bg-slate-950 text-slate-200 antialiased;
+@utility gradient-text {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, #4166f5 0%, #2548e4 50%, #1c38c4 100%);
+  .dark & {
+    background-image: linear-gradient(135deg, #8fa4fa 0%, #6985f7 50%, #4166f5 100%);
+  }
+}
+
+/* Pill buttons, as on the portfolio */
+@utility pill {
+  @apply inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40;
+}
+
+@utility pill-primary {
+  @apply pill bg-ultramarine-600 text-white hover:bg-ultramarine-500;
+}
+
+@utility pill-outline {
+  @apply pill border border-line-strong hover:border-ultramarine-500/50 hover:bg-hover;
+}
+
+/* Smooth colour change when switching theme, without animating the first paint */
+.theme-transition * {
+  transition-property: color, background-color, border-color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }

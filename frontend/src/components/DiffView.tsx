@@ -2,26 +2,26 @@ import { parsePatch } from '../lib/diff'
 import { cx } from '../lib/format'
 
 const LINE_STYLE = {
-  add: 'bg-emerald-500/10 text-emerald-200',
-  del: 'bg-rose-500/10 text-rose-200',
-  ctx: 'text-slate-400',
-  hunk: 'bg-brand-500/10 text-brand-300',
+  add: 'bg-emerald-500/10 text-good',
+  del: 'bg-rose-500/10 text-bad',
+  ctx: 'text-muted',
+  hunk: 'bg-ultramarine-500/10 text-accent',
 }
 
 export function DiffView({ patch }: { patch: string | null }) {
-  if (!patch) return <p className="p-4 text-sm text-slate-500">No changes.</p>
+  if (!patch) return <p className="p-4 text-sm text-faint">No changes.</p>
   return (
     <div className="space-y-3 p-4">
       {parsePatch(patch).map((file) => (
-        <div key={file.path} className="overflow-hidden rounded-lg border border-slate-800">
-          <div className="flex items-center gap-2 border-b border-slate-800 bg-slate-900 px-3 py-1.5 font-mono text-xs text-slate-300">
+        <div key={file.path} className="overflow-hidden rounded-lg border border-line">
+          <div className="flex items-center gap-2 border-b border-line bg-hover px-3 py-1.5 font-mono text-xs text-body">
             {file.path}
-            {file.isNew && <span className="text-emerald-400">new file</span>}
+            {file.isNew && <span className="text-good">new file</span>}
           </div>
-          <pre className="overflow-x-auto bg-slate-950 py-1 font-mono text-[12px] leading-5">
+          <pre className="overflow-x-auto bg-sunken py-1 font-mono text-[12px] leading-5">
             {file.lines.map((l, i) => (
               <div key={i} className={cx('px-3', LINE_STYLE[l.kind])}>
-                <span className="mr-3 inline-block w-3 select-none text-slate-600">
+                <span className="mr-3 inline-block w-3 select-none text-dim">
                   {l.kind === 'add' ? '+' : l.kind === 'del' ? '−' : ''}
                 </span>
                 {l.text || ' '}

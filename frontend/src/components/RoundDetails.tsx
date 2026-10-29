@@ -21,7 +21,7 @@ const SEVERITY_TONE = {
 
 function where(path: string, line: number | null) {
   return (
-    <span className="font-mono text-xs text-slate-400">
+    <span className="font-mono text-xs text-muted">
       {path}
       {line ? `:${line}` : ''}
     </span>
@@ -30,14 +30,14 @@ function where(path: string, line: number | null) {
 
 function AgentError({ message }: { message?: string }) {
   return message ? (
-    <p className="m-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+    <p className="m-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-warn">
       This agent failed this round, so the judge worked without it: {message}
     </p>
   ) : null
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="p-4 text-sm text-slate-500">{children}</p>
+  return <p className="p-4 text-sm text-faint">{children}</p>
 }
 
 export function RoundDetails({ rounds }: { rounds: Round[] }) {
@@ -51,7 +51,7 @@ export function RoundDetails({ rounds }: { rounds: Round[] }) {
 
   return (
     <div className="flex min-h-0 flex-col">
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-2 border-b border-line px-3 py-2">
         {rounds.length > 1 &&
           rounds.map((r, i) => (
             <button
@@ -59,8 +59,8 @@ export function RoundDetails({ rounds }: { rounds: Round[] }) {
               type="button"
               onClick={() => setIndex(i)}
               className={cx(
-                'rounded-md px-2 py-1 text-xs',
-                i === index ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white',
+                'rounded-full px-2.5 py-1 text-xs transition-colors',
+                i === index ? 'bg-raised text-ink' : 'text-muted hover:text-ink',
               )}
             >
               Round {r.iteration}
@@ -73,8 +73,8 @@ export function RoundDetails({ rounds }: { rounds: Round[] }) {
               type="button"
               onClick={() => setTab(t)}
               className={cx(
-                'rounded-md px-2.5 py-1 text-xs font-medium',
-                t === tab ? 'bg-brand-600 text-white' : 'text-slate-400 hover:text-white',
+                'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                t === tab ? 'bg-ultramarine-600 text-white' : 'text-muted hover:text-ink',
               )}
             >
               {t}
@@ -86,7 +86,7 @@ export function RoundDetails({ rounds }: { rounds: Round[] }) {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {tab === 'Changes' && (
           <>
-            {round.summary && <p className="px-4 pt-4 text-sm text-slate-300">{round.summary}</p>}
+            {round.summary && <p className="px-4 pt-4 text-sm text-body">{round.summary}</p>}
             <DiffView patch={round.patch} />
           </>
         )}
@@ -102,15 +102,15 @@ export function RoundDetails({ rounds }: { rounds: Round[] }) {
                   {round.review.approved ? 'Approved' : 'Changes requested'}
                 </Badge>
                 {round.review.comments.length === 0 && (
-                  <p className="text-sm text-slate-500">No comments.</p>
+                  <p className="text-sm text-faint">No comments.</p>
                 )}
                 {round.review.comments.map((c: ReviewComment, i) => (
-                  <div key={i} className="rounded-lg border border-slate-800 p-3">
+                  <div key={i} className="rounded-lg border border-line p-3">
                     <div className="flex items-center gap-2">
                       <Badge tone={SEVERITY_TONE[c.severity]}>{c.severity}</Badge>
                       {where(c.path, c.line)}
                     </div>
-                    <p className="mt-1.5 text-sm text-slate-300">{c.message}</p>
+                    <p className="mt-1.5 text-sm text-body">{c.message}</p>
                   </div>
                 ))}
               </div>
@@ -128,14 +128,14 @@ export function RoundDetails({ rounds }: { rounds: Round[] }) {
             ) : (
               <div className="space-y-2 p-4">
                 {round.security.findings.map((f: Finding, i) => (
-                  <div key={i} className="rounded-lg border border-slate-800 p-3">
+                  <div key={i} className="rounded-lg border border-line p-3">
                     <div className="flex items-center gap-2">
                       <Badge tone={SEVERITY_TONE[f.severity]}>{f.severity}</Badge>
                       {f.cwe && <Badge>{f.cwe}</Badge>}
                       {where(f.path, f.line)}
                     </div>
-                    <p className="mt-1.5 text-sm text-slate-300">{f.issue}</p>
-                    <p className="mt-1 text-xs text-slate-400">Fix: {f.fix}</p>
+                    <p className="mt-1.5 text-sm text-body">{f.issue}</p>
+                    <p className="mt-1 text-xs text-muted">Fix: {f.fix}</p>
                   </div>
                 ))}
               </div>
@@ -156,19 +156,19 @@ export function RoundDetails({ rounds }: { rounds: Round[] }) {
                         ? 'timed out'
                         : 'failed'}
                   </Badge>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-faint">
                     sandbox run · {(round.testResult.duration_ms / 1000).toFixed(1)}s
                   </span>
                 </div>
-                <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-slate-950 p-3 font-mono text-[11px] leading-5 text-slate-400">
+                <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-sunken p-3 font-mono text-[11px] leading-5 text-muted">
                   {round.testResult.output.trim()}
                 </pre>
               </div>
             )}
             {round.tests?.files.map((f) => (
               <div key={f.path} className="p-4 pb-0 last:pb-4">
-                <p className="mb-1 font-mono text-xs text-slate-400">{f.path}</p>
-                <pre className="overflow-x-auto rounded-lg bg-slate-950 p-3 font-mono text-[12px] leading-5 text-slate-300">
+                <p className="mb-1 font-mono text-xs text-muted">{f.path}</p>
+                <pre className="overflow-x-auto rounded-lg bg-sunken p-3 font-mono text-[12px] leading-5 text-body">
                   {f.content}
                 </pre>
               </div>

@@ -11,6 +11,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import { memo, useMemo } from 'react'
 import { cx } from '../lib/format'
+import { type Theme, useTheme } from '../lib/useTheme'
 import { NODE_LABELS, type NodeId, type NodeStatus, type RunView } from '../lib/runState'
 
 const ROLE: Record<NodeId, string> = {
@@ -37,11 +38,20 @@ const POSITIONS: Record<NodeId, { x: number; y: number }> = {
   finalize: { x: 1140, y: 140 },
 }
 
+// Graph colours per theme. The graph library puts marker colours into element ids,
+// so these are plain hex values rather than CSS variables.
+const GRAPH_COLORS: Record<Theme, { idle: string; grid: string; label: string; labelBg: string }> =
+  {
+    dark: { idle: '#334155', grid: '#1e293b', label: '#94a3b8', labelBg: '#0a0f1c' },
+    light: { idle: '#cbd5e1', grid: '#e2e8f0', label: '#64748b', labelBg: '#ffffff' },
+  }
+
 const STATUS_STYLE: Record<NodeStatus, string> = {
-  idle: 'border-slate-700 bg-slate-900 text-slate-400',
-  running: 'border-brand-400 bg-brand-500/15 text-white shadow-[0_0_24px] shadow-brand-500/40',
-  done: 'border-emerald-500/60 bg-emerald-500/10 text-emerald-100',
-  failed: 'border-rose-500/70 bg-rose-500/10 text-rose-100',
+  idle: 'border-line-strong bg-canvas text-muted',
+  running:
+    'border-ultramarine-400 bg-ultramarine-500/15 text-ink shadow-[0_0_24px] shadow-ultramarine-500/40',
+  done: 'border-emerald-500/60 bg-emerald-500/10 text-good',
+  failed: 'border-rose-500/70 bg-rose-500/10 text-bad',
 }
 
 type AgentNodeData = { id: NodeId; status: NodeStatus }
@@ -61,15 +71,15 @@ const AgentNode = memo(function AgentNode({ data }: NodeProps<Node<AgentNodeData
         <span
           className={cx(
             'h-2 w-2 shrink-0 rounded-full',
-            status === 'running' && 'animate-pulse bg-brand-300',
+            status === 'running' && 'animate-pulse bg-ultramarine-300',
             status === 'done' && 'bg-emerald-400',
             status === 'failed' && 'bg-rose-400',
-            status === 'idle' && 'bg-slate-600',
+            status === 'idle' && 'bg-dim',
           )}
         />
         <span className="text-[13px] font-semibold">{NODE_LABELS[id]}</span>
         {AI_NODES.has(id) && (
-          <span className="ml-auto rounded bg-white/10 px-1 text-[9px] font-medium uppercase tracking-wide">
+          <span className="ml-auto rounded bg-ink/10 px-1 text-[9px] font-medium uppercase tracking-wide">
             AI
           </span>
         )}
@@ -96,6 +106,8 @@ const LINKS: [NodeId, NodeId][] = [
 ]
 
 export function AgentGraph({ view }: { view: RunView }) {
+  const { theme } = useTheme()
+  const palette = GRAPH_COLORS[theme]
   const nodes = useMemo<Node<AgentNodeData>[]>(
     () =>
       (Object.keys(POSITIONS) as NodeId[]).map((id) => ({
@@ -113,7 +125,7 @@ export function AgentGraph({ view }: { view: RunView }) {
       view.nodes[target] === 'running'
         ? '#6985f7'
         : view.nodes[target] === 'idle'
-          ? '#334155'
+          ? palette.idle
           : '#10b98199'
     const base = LINKS.map(([source, target]) => ({
       id: `${source}-${target}`,
@@ -134,17 +146,17 @@ export function AgentGraph({ view }: { view: RunView }) {
         targetHandle: 'top',
         type: 'smoothstep',
         label: view.iteration > 1 ? `feedback · round ${view.iteration}` : 'feedback',
-        labelStyle: { fill: '#94a3b8', fontSize: 11 },
-        labelBgStyle: { fill: '#0f172a' },
+        labelStyle: { fill: palette.label, fontSize: 11 },
+        labelBgStyle: { fill: palette.labelBg },
         style: {
-          stroke: looping ? '#f59e0b99' : '#334155',
+          stroke: looping ? '#f59e0b99' : palette.idle,
           strokeDasharray: '5 5',
           strokeWidth: 1.5,
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: looping ? '#f59e0b99' : '#334155' },
+        markerEnd: { type: MarkerType.ArrowClosed, color: looping ? '#f59e0b99' : palette.idle },
       },
     ]
-  }, [view.nodes, view.iteration])
+  }, [view.nodes, view.iteration, palette])
 
   return (
     <div className="h-[150px] w-full sm:h-[300px]">
@@ -163,9 +175,9 @@ export function AgentGraph({ view }: { view: RunView }) {
         zoomOnScroll={false}
         zoomOnPinch={false}
         zoomOnDoubleClick={false}
-        colorMode="dark"
+        colorMode={theme}
       >
-        <Background color="#1e293b" gap={20} bgColor="transparent" />
+        <Background color={palette.grid} gap={20} bgColor="transparent" />
       </ReactFlow>
     </div>
   )

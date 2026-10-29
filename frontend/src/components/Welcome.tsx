@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from 'lucide-react'
 import type { RunSummary } from '../lib/types'
 import { Panel } from './ui'
 
@@ -17,20 +18,25 @@ export function Welcome({
 }) {
   const featured = runs.find((r) => r.status === 'passed')
   return (
-    <Panel className="p-8">
-      <h2 className="text-xl font-semibold text-white">Watch AI agents collaborate on code</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">
-        Pick a benchmark task on the left, or replay a recorded run. Each run is orchestrated with
-        LangGraph, and every model call is tracked for cost.
+    <Panel className="p-8 md:p-10">
+      <h2 className="text-3xl text-ink md:text-4xl">
+        Watch AI agents <span className="gradient-text">collaborate on code</span>
+      </h2>
+      <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted md:text-lg">
+        Pick a benchmark task, or replay a recorded run. Each run is orchestrated with LangGraph,
+        and every model call is tracked for cost.
       </p>
-      <ol className="mt-6 grid gap-3 md:grid-cols-2">
+      <ol className="mt-8 grid gap-3 md:grid-cols-2">
         {STEPS.map(([who, what], i) => (
-          <li key={who} className="flex gap-3 rounded-lg border border-slate-800 p-3">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-semibold text-white">
+          <li
+            key={who}
+            className="flex gap-3 rounded-xl border border-line bg-sunken/50 p-4 transition-colors duration-300 hover:border-ultramarine-500/30"
+          >
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ultramarine-600 text-xs font-semibold text-white">
               {i + 1}
             </span>
-            <p className="text-sm text-slate-300">
-              <span className="font-medium text-white">{who}</span> {what}
+            <p className="text-sm leading-relaxed text-body">
+              <span className="font-medium text-ink">{who}</span> {what}
             </p>
           </li>
         ))}
@@ -39,9 +45,10 @@ export function Welcome({
         <button
           type="button"
           onClick={() => onReplay(featured.id)}
-          className="mt-6 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500"
+          className="pill-primary group mt-8 px-6 py-3 text-sm"
         >
-          ▶ Replay a recorded run
+          Replay a recorded run
+          <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </button>
       )}
     </Panel>
