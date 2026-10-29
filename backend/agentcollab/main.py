@@ -17,6 +17,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, model_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -30,6 +31,7 @@ from .github import Git, GitHubApp, IssueJob, handle_issue, job_from_event, veri
 from .graph import Deps
 from .limits import LimitReached, check_and_record, client_key
 from .service import new_run_id, run_task
+from .transfer import import_file
 
 TERMINAL_EVENTS = {"run_finished", "run_crashed"}
 MAX_REPLAY_GAP_S = 1.5
@@ -70,6 +72,8 @@ def create_app(
 ) -> FastAPI:
     settings = settings or get_settings()
     engine, events = build_store(settings)
+    if settings.agentcollab_seed_file and Path(settings.agentcollab_seed_file).is_file():
+        import_file(engine, Path(settings.agentcollab_seed_file))
     pool = ThreadPoolExecutor(max_workers=settings.agentcollab_max_concurrent_runs)
     tasks = {t.id: t for t in load_tasks()}
     app = FastAPI(title="AgentCollab")
@@ -233,5 +237,9 @@ def create_app(
                     await asyncio.sleep(0.3)
         except WebSocketDisconnect:
             return
+
+    # The built frontend, when present. Mounted last so /api routes take priority.
+    if settings.agentcollab_static_dir and Path(settings.agentcollab_static_dir).is_dir():
+        app.mount("/", StaticFiles(directory=settings.agentcollab_static_dir, html=True), "web")
 
     return app

@@ -44,6 +44,8 @@ class Settings(BaseSettings):
     agentcollab_max_concurrent_runs: int = 2
 
     agentcollab_public_url: str | None = None  # used for links in GitHub comments
+    agentcollab_static_dir: str | None = None  # built frontend to serve at /
+    agentcollab_seed_file: str | None = None  # exported runs to import at startup
 
     # Limits for a public demo (0 means unlimited)
     agentcollab_live_runs: bool = True  # false = replays only, no model calls from visitors

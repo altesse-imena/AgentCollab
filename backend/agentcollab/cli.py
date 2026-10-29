@@ -43,6 +43,12 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("runs", help="list recent runs")
 
+    exp = sub.add_parser("export", help="save runs and their events to a JSON file")
+    exp.add_argument("run_ids", nargs="+")
+    exp.add_argument("-o", "--output", type=Path, required=True)
+    imp = sub.add_parser("import", help="load runs exported with `export`")
+    imp.add_argument("file", type=Path)
+
     ev = sub.add_parser("eval", help="run the benchmark in evals/tasks")
     ev.add_argument("--label", default="latest", help="results go to evals/results/<label>.json")
     ev.add_argument("--tasks", help="comma-separated task ids (default: all)")
@@ -53,6 +59,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "eval" and args.check:
         return _check_tasks(args)
+    if args.command in ("export", "import"):
+        return _transfer(args, settings)
 
     try:
         engine, deps, events = build(settings)
@@ -102,6 +110,22 @@ def main(argv: list[str] | None = None) -> int:
         repo = Path(_repo_of(outcome, args))
         apply_files(repo, outcome.files)
         print(f"applied {len(outcome.files)} file(s) to {repo}")
+    return 0
+
+
+def _transfer(args, settings) -> int:
+    import json
+
+    from .deps import build_store
+    from .transfer import export_runs, import_file
+
+    engine, _ = build_store(settings)
+    if args.command == "export":
+        data = export_runs(engine, args.run_ids)
+        args.output.write_text(json.dumps(data, indent=1) + "\n")
+        print(f"exported {len(data['runs'])} run(s) to {args.output}")
+    else:
+        print(f"imported {import_file(engine, args.file)} new run(s)")
     return 0
 
 
