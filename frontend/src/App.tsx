@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { RunView } from './components/RunView'
 import { Sidebar } from './components/Sidebar'
 import { api } from './lib/api'
 import type { RunSummary, Task } from './lib/types'
@@ -73,7 +74,7 @@ export default function App() {
         />
         <main className="min-h-0">
           {runId ? (
-            <p className="text-sm text-slate-400">Run {runId}</p>
+            <RunView runId={runId} speed={0} />
           ) : (
             <p className="text-sm text-slate-400">Pick a task to watch the agents work.</p>
           )}
