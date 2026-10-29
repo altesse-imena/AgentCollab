@@ -43,6 +43,14 @@ class Settings(BaseSettings):
     agentcollab_allow_local_repos: bool = False  # let POST /api/runs use any path on this machine
     agentcollab_max_concurrent_runs: int = 2
 
+    agentcollab_public_url: str | None = None  # used for links in GitHub comments
+
+    # GitHub App (see docs/github-app.md)
+    github_app_id: str | None = None
+    github_app_private_key: str | None = None  # PEM contents; "\n" escapes are allowed
+    github_webhook_secret: str | None = None
+    agentcollab_github_label: str = "agentcollab"
+
     database_url: str = "sqlite:///./agentcollab.db"
     agentcollab_run_budget_usd: float = 0.50
 
@@ -53,6 +61,16 @@ class Settings(BaseSettings):
             "anthropic": self.anthropic_api_key,
             "openai_compatible": self.agentcollab_api_key,
         }.get(self.agentcollab_provider)
+
+    @property
+    def github_enabled(self) -> bool:
+        return bool(
+            self.github_app_id and self.github_app_private_key and self.github_webhook_secret
+        )
+
+    @property
+    def github_private_key_pem(self) -> str:
+        return (self.github_app_private_key or "").replace("\\n", "\n")
 
     @property
     def light_roles(self) -> set[str]:

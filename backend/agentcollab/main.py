@@ -5,6 +5,7 @@ GET  /api/runs                recent runs
 GET  /api/runs/{id}           one run
 GET  /api/tasks               benchmark tasks that can be run from the UI
 WS   /api/runs/{id}/events    the run's events, live; ?speed=N replays a finished run
+POST /api/github/webhook      GitHub App webhook: a labeled issue becomes a run and a draft PR
 """
 
 import asyncio
@@ -15,7 +16,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, model_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -25,6 +26,7 @@ from .config import Settings, get_settings
 from .db import Run
 from .deps import MissingAPIKey, build_deps, build_store
 from .evals import load_tasks
+from .github import Git, GitHubApp, IssueJob, handle_issue, job_from_event, verify_signature
 from .graph import Deps
 from .service import new_run_id, run_task
 
@@ -63,6 +65,7 @@ def run_summary(r: Run) -> dict:
 def create_app(
     settings: Settings | None = None,
     deps_factory: Callable[..., Deps] = build_deps,
+    on_issue: Callable[[IssueJob], None] | None = None,
 ) -> FastAPI:
     settings = settings or get_settings()
     engine, events = build_store(settings)
@@ -95,6 +98,45 @@ def create_app(
         finally:
             if cleanup:
                 shutil.rmtree(repo.parent, ignore_errors=True)
+
+    def run_for_issue(task: str, workdir: Path):
+        with open_checkpointer(settings.database_url) as checkpointer:
+            return run_task(
+                deps=get_deps(),
+                engine=engine,
+                task=task,
+                repo=workdir,
+                budget_usd=settings.agentcollab_run_budget_usd,
+                checkpointer=checkpointer,
+                events=events,
+            )
+
+    def handle_github_issue(job: IssueJob) -> None:
+        github = GitHubApp(settings.github_app_id, settings.github_private_key_pem)
+        handle_issue(
+            job,
+            app=github,
+            git_factory=Git,
+            run=run_for_issue,
+            public_url=settings.agentcollab_public_url,
+        )
+
+    issue_handler = on_issue or handle_github_issue
+
+    @app.post("/api/github/webhook", status_code=202)
+    async def github_webhook(request: Request) -> dict:
+        if not settings.github_enabled:
+            raise HTTPException(404, "GitHub integration is not configured")
+        body = await request.body()
+        signature = request.headers.get("X-Hub-Signature-256")
+        if not verify_signature(settings.github_webhook_secret, body, signature):
+            raise HTTPException(401, "bad signature")
+        event = request.headers.get("X-GitHub-Event", "")
+        job = job_from_event(event, await request.json(), settings.agentcollab_github_label)
+        if not job:
+            return {"accepted": False}
+        pool.submit(issue_handler, job)
+        return {"accepted": True, "repo": job.repo, "issue": job.issue}
 
     @app.get("/api/health")
     def health() -> dict:
