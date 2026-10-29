@@ -4,6 +4,7 @@ Prices change. Check the provider's pricing page before trusting the cost number
 any model you switch to. Unknown models are logged with cost_usd = None.
 - OpenAI: https://openai.com/api/pricing
 - Anthropic: https://platform.claude.com/docs/en/about-claude/pricing
+- Groq: https://groq.com/pricing (paid-tier rates; the free tier costs nothing)
 """
 
 from dataclasses import dataclass
@@ -29,6 +30,9 @@ PRICES: dict[str, ModelPrice] = {
     "claude-opus-5-5": ModelPrice(input=4.00, cached_input=0.20, output=20.00, cache_write=5.00),
     "claude-sonnet-5-5": ModelPrice(input=2.00, cached_input=0.20, output=10.00, cache_write=2.50),
     "claude-haiku-5-5": ModelPrice(input=0.10, cached_input=0.01, output=0.50, cache_write=0.125),
+    # Groq (open-weight models; cached input is half price)
+    "openai/gpt-oss-120b": ModelPrice(input=0.15, cached_input=0.075, output=0.60),
+    "openai/gpt-oss-20b": ModelPrice(input=0.075, cached_input=0.0375, output=0.30),
 }
 
 
