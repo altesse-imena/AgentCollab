@@ -15,7 +15,7 @@ from pydantic import BaseModel, ValidationError
 from tenacity import (
     RetryCallState,
     retry,
-    retry_if_exception_type,
+    retry_if_exception,
     stop_after_attempt,
     wait_exponential,
 )
@@ -51,6 +51,19 @@ def backoff(wait_max_s: float):
         return max(exponential(state), min(hint or 0.0, MAX_RETRY_AFTER_S))
 
     return wait
+
+
+def worth_retrying(error: BaseException) -> bool:
+    """Retry transient failures, unless the provider asked for a wait longer than we'll
+    sleep. That usually means a daily quota is used up, and retrying only burns minutes."""
+    if not isinstance(error, TransientProviderError):
+        return False
+    hint = error.retry_after_s
+    return hint is None or hint <= MAX_RETRY_AFTER_S
+
+
+class QuotaExhausted(TransientProviderError):
+    """The provider asked for a long wait (typically a daily limit); not retried."""
 
 
 class BudgetExceeded(Exception):
@@ -124,12 +137,27 @@ class LLMClient:
         self._record = recorder or (lambda _: None)
         self._cache = cache
         # wait_max_s=0 disables the backoff wait (used by tests)
-        self._chat = retry(
-            retry=retry_if_exception_type(TransientProviderError),
+        retrying = retry(
+            retry=retry_if_exception(worth_retrying),
             stop=stop_after_attempt(max_attempts),
             wait=backoff(wait_max_s),
             reraise=True,
         )(self._provider.chat)
+
+        def chat(model: str, messages: list[dict], json_mode: bool) -> ProviderResponse:
+            try:
+                return retrying(model, messages, json_mode)
+            except TransientProviderError as e:
+                if worth_retrying(e):
+                    raise
+                minutes = e.retry_after_s / 60
+                raise QuotaExhausted(
+                    f"rate limit: the provider asked to wait {minutes:.0f} min, likely a daily "
+                    f"quota; not retrying ({e})",
+                    e.retry_after_s,
+                ) from e
+
+        self._chat = chat
 
     def structured[T: BaseModel](
         self,

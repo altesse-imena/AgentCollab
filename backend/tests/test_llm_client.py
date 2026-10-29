@@ -134,3 +134,20 @@ def test_backoff_waits_for_retry_after_hint():
     assert wait(state_with(TransientProviderError("429", retry_after_s=600))) == MAX_RETRY_AFTER_S
     assert wait(state_with(TransientProviderError("503"))) == 1  # plain exponential backoff
     assert backoff(wait_max_s=0)(state_with(TransientProviderError("429", 30))) == 0
+
+
+def test_long_waits_are_not_retried(make_llm):
+    from agentcollab.llm.client import QuotaExhausted
+
+    daily = TransientProviderError("tokens per day. Please try again in 6m8.5s.", 368.5)
+    llm, provider = make_llm([daily, {"value": 1}])
+    with pytest.raises(QuotaExhausted, match="wait 6 min"):
+        ask(llm)
+
+
+def test_retry_hint_is_read_from_the_message():
+    from agentcollab.llm.providers.base import retry_after_s
+
+    assert retry_after_s(Exception("Please try again in 6m8.5s.")) == 368.5
+    assert retry_after_s(Exception("try again in 1h2m")) == 3720
+    assert retry_after_s(Exception("server busy")) is None

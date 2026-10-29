@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -20,13 +21,22 @@ class TransientProviderError(Exception):
         self.retry_after_s = retry_after_s  # how long the provider asked us to wait, if it said
 
 
+_TRY_AGAIN = re.compile(r"try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", re.IGNORECASE)
+
+
 def retry_after_s(error) -> float | None:
-    """Seconds from an HTTP error's Retry-After header. Date values are ignored."""
+    """Seconds the provider asked us to wait: the Retry-After header, or failing that a
+    "try again in 6m8s" hint in the message (Groq's wording). Date values are ignored."""
     headers = getattr(getattr(error, "response", None), "headers", None) or {}
     try:
         return float(headers.get("retry-after"))
     except (TypeError, ValueError):
+        pass
+    match = _TRY_AGAIN.search(str(error))
+    if not match or not any(match.groups()):
         return None
+    hours, minutes, seconds = (float(g or 0) for g in match.groups())
+    return hours * 3600 + minutes * 60 + seconds
 
 
 def is_retryable_status(status: int | None) -> bool:
