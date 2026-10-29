@@ -1,18 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import { RunView } from './components/RunView'
 import { Sidebar } from './components/Sidebar'
+import { Welcome } from './components/Welcome'
 import { api } from './lib/api'
 import type { RunSummary, Task } from './lib/types'
 
-function runIdFromHash(): string | null {
-  const match = location.hash.match(/^#\/runs\/([\w-]+)/)
-  return match ? match[1] : null
+// #/runs/<id> opens a run; #/runs/<id>/replay/<speed> replays it (shareable demo links)
+function routeFromHash(): { runId: string | null; speed: number } {
+  const match = location.hash.match(/^#\/runs\/([\w-]+)(?:\/replay\/(\d+))?/)
+  return { runId: match?.[1] ?? null, speed: Number(match?.[2] ?? 0) }
 }
 
 export default function App() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [runs, setRuns] = useState<RunSummary[]>([])
-  const [runId, setRunId] = useState<string | null>(runIdFromHash)
+  const [route, setRoute] = useState(routeFromHash)
   const [startError, setStartError] = useState<string | null>(null)
 
   const refreshRuns = useCallback(() => api.runs().then(setRuns).catch(() => {}), [])
@@ -21,7 +23,7 @@ export default function App() {
     api.tasks().then(setTasks).catch(() => {})
     refreshRuns()
     const timer = setInterval(refreshRuns, 5000)
-    const onHash = () => setRunId(runIdFromHash())
+    const onHash = () => setRoute(routeFromHash())
     window.addEventListener('hashchange', onHash)
     return () => {
       clearInterval(timer)
@@ -29,8 +31,8 @@ export default function App() {
     }
   }, [refreshRuns])
 
-  const selectRun = (id: string) => {
-    location.hash = `#/runs/${id}`
+  const selectRun = (id: string, speed = 0) => {
+    location.hash = speed ? `#/runs/${id}/replay/${speed}` : `#/runs/${id}`
   }
 
   const start = async (taskId: string) => {
@@ -47,7 +49,7 @@ export default function App() {
   return (
     <div className="mx-auto flex h-full max-w-[1600px] flex-col gap-4 p-4">
       <header className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <a href="#/" className="flex items-center gap-3">
           <img src="/favicon.svg" alt="" className="h-8 w-8" />
           <div>
             <h1 className="text-lg font-semibold text-white">AgentCollab</h1>
@@ -55,7 +57,7 @@ export default function App() {
               Four AI agents write, review, test and secure code together
             </p>
           </div>
-        </div>
+        </a>
         <a
           href="https://github.com/altesse-imena/AgentCollab"
           className="text-xs text-slate-400 hover:text-white"
@@ -67,16 +69,20 @@ export default function App() {
         <Sidebar
           tasks={tasks}
           runs={runs}
-          selectedRun={runId}
+          selectedRun={route.runId}
           onStart={start}
-          onSelectRun={selectRun}
+          onSelectRun={(id) => selectRun(id)}
           startError={startError}
         />
         <main className="min-h-0">
-          {runId ? (
-            <RunView runId={runId} speed={0} />
+          {route.runId ? (
+            <RunView
+              key={`${route.runId}-${route.speed}`}
+              runId={route.runId}
+              initialSpeed={route.speed}
+            />
           ) : (
-            <p className="text-sm text-slate-400">Pick a task to watch the agents work.</p>
+            <Welcome runs={runs} onReplay={(id) => selectRun(id, 4)} />
           )}
         </main>
       </div>

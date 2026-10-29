@@ -11,7 +11,15 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
   )
 }
 
-export function StatsBar({ view, connected }: { view: RunView; connected: boolean }) {
+export function StatsBar({
+  view,
+  connected,
+  replaying = false,
+}: {
+  view: RunView
+  connected: boolean
+  replaying?: boolean
+}) {
   const budgetUsed = view.budgetUsd ? Math.min(1, view.spentUsd / view.budgetUsd) : 0
   const cacheRate = view.tokens.prompt ? view.tokens.cached / view.tokens.prompt : 0
   return (
@@ -21,7 +29,7 @@ export function StatsBar({ view, connected }: { view: RunView; connected: boolea
           <Badge tone={STATUS_TONE[view.status]}>{view.status}</Badge>
           {view.status === 'running' && (
             <span className={cx('text-[11px]', connected ? 'text-slate-500' : 'text-amber-300')}>
-              {connected ? 'live' : 'reconnecting…'}
+              {!connected ? 'reconnecting…' : replaying ? 'replay' : 'live'}
             </span>
           )}
         </div>

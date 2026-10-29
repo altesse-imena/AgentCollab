@@ -37,7 +37,7 @@ const TERMINAL = new Set(['run_finished', 'run_crashed'])
  * Streams a run's events into a RunView. Reconnects from the last seen event if the
  * connection drops. speed > 0 replays a finished run at its original pace, sped up.
  */
-export function useRunEvents(runId: string | null, speed: number) {
+export function useRunEvents(runId: string | null, speed: number, replayNonce = 0) {
   const [view, dispatch] = useReducer(reducer, undefined, initialView)
   const [connected, setConnected] = useState(false)
   const lastSeq = useRef(-1)
@@ -77,7 +77,7 @@ export function useRunEvents(runId: string | null, speed: number) {
       clearTimeout(retry)
       ws?.close()
     }
-  }, [runId, speed])
+  }, [runId, speed, replayNonce])
 
   return { view, connected }
 }
