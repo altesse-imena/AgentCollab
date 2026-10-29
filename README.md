@@ -8,6 +8,10 @@ feedback until the change passes or the run hits its round or budget limit.
 Orchestrated with **LangGraph**, served by **FastAPI**, with a live **React** view of the agents
 at work. It runs on OpenAI, Anthropic Claude or any OpenAI-compatible API.
 
+**Live demo: [agentcollab.onrender.com](https://agentcollab.onrender.com)**: watch recorded runs
+play back, or read them as case studies. It runs on Render's free tier, so the first visit after
+a quiet spell takes about a minute to wake up.
+
 ## How a run works
 
 ```mermaid
