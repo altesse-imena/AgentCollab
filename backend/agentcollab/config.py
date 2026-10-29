@@ -45,6 +45,12 @@ class Settings(BaseSettings):
 
     agentcollab_public_url: str | None = None  # used for links in GitHub comments
 
+    # Limits for a public demo (0 means unlimited)
+    agentcollab_live_runs: bool = True  # false = replays only, no model calls from visitors
+    agentcollab_runs_per_ip_per_day: int = 0
+    agentcollab_daily_budget_usd: float = 0.0
+    agentcollab_trust_proxy: bool = False  # read the client IP from X-Forwarded-For
+
     # GitHub App (see docs/github-app.md)
     github_app_id: str | None = None
     github_app_private_key: str | None = None  # PEM contents; "\n" escapes are allowed

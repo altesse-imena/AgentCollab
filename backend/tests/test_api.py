@@ -97,3 +97,40 @@ def test_bad_requests(make_client, body):
 
 def test_unknown_task(make_client):
     assert make_client().post("/api/runs", json={"task_id": "nope"}).status_code == 404
+
+
+def test_replay_only_mode(make_client):
+    client = make_client(agentcollab_live_runs=False)
+    assert client.get("/api/config").json()["live_runs"] is False
+    assert client.post("/api/runs", json={"task_id": "slugify"}).status_code == 403
+
+
+def test_per_visitor_daily_limit(make_client):
+    client = make_client(agentcollab_runs_per_ip_per_day=1)
+    assert client.post("/api/runs", json={"task_id": "slugify"}).status_code == 202
+    second = client.post("/api/runs", json={"task_id": "slugify"})
+    assert second.status_code == 429 and "today's 1 runs" in second.json()["detail"]
+
+
+def test_proxy_header_only_trusted_when_enabled(make_client):
+    client = make_client(agentcollab_runs_per_ip_per_day=1, agentcollab_trust_proxy=True)
+    for ip in ("1.1.1.1", "2.2.2.2"):
+        resp = client.post(
+            "/api/runs", json={"task_id": "slugify"}, headers={"X-Forwarded-For": ip}
+        )
+        assert resp.status_code == 202
+    untrusted = make_client(agentcollab_runs_per_ip_per_day=1)
+    untrusted.post("/api/runs", json={"task_id": "slugify"}, headers={"X-Forwarded-For": "3.3.3.3"})
+    spoofed = untrusted.post(
+        "/api/runs", json={"task_id": "slugify"}, headers={"X-Forwarded-For": "4.4.4.4"}
+    )
+    assert spoofed.status_code == 429
+
+
+def test_daily_spending_cap(make_client):
+    client = make_client(agentcollab_daily_budget_usd=0.6, agentcollab_run_budget_usd=0.5)
+    first = client.post("/api/runs", json={"task_id": "slugify"}).json()["run_id"]
+    collect(client, first)  # finished runs count at actual cost (~$0.02 here)
+    assert client.post("/api/runs", json={"task_id": "slugify"}).status_code == 202
+    tight = make_client(agentcollab_daily_budget_usd=0.4, agentcollab_run_budget_usd=0.5)
+    assert tight.post("/api/runs", json={"task_id": "slugify"}).status_code == 429

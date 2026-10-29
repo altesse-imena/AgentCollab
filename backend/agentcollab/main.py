@@ -28,13 +28,14 @@ from .deps import MissingAPIKey, build_deps, build_store
 from .evals import load_tasks
 from .github import Git, GitHubApp, IssueJob, handle_issue, job_from_event, verify_signature
 from .graph import Deps
+from .limits import LimitReached, check_and_record, client_key
 from .service import new_run_id, run_task
 
 TERMINAL_EVENTS = {"run_finished", "run_crashed"}
 MAX_REPLAY_GAP_S = 1.5
 
 
-class RunRequest(BaseModel):
+class StartRun(BaseModel):
     task_id: str | None = None  # a benchmark task
     task: str | None = None  # free text, with repo_path
     repo_path: str | None = None
@@ -146,8 +147,24 @@ def create_app(
     def list_tasks() -> list[dict]:
         return [{"id": t.id, "kind": t.kind, "prompt": t.prompt} for t in tasks.values()]
 
+    @app.get("/api/config")
+    def public_config() -> dict:
+        return {
+            "live_runs": settings.agentcollab_live_runs,
+            "runs_per_day": settings.agentcollab_runs_per_ip_per_day or None,
+            "run_budget_usd": settings.agentcollab_run_budget_usd,
+        }
+
+    def client_ip(request: Request) -> str:
+        forwarded = request.headers.get("X-Forwarded-For")
+        if settings.agentcollab_trust_proxy and forwarded:
+            return forwarded.split(",")[0].strip()
+        return request.client.host if request.client else "unknown"
+
     @app.post("/api/runs", status_code=202)
-    def create_run(req: RunRequest) -> dict:
+    def create_run(req: StartRun, request: Request) -> dict:
+        if not settings.agentcollab_live_runs:
+            raise HTTPException(403, "This demo shows recorded runs only.")
         try:
             get_deps()
         except MissingAPIKey as e:
@@ -167,6 +184,13 @@ def create_app(
                 raise HTTPException(400, "repo_path is not a directory")
             prompt, cleanup = req.task, False
         run_id = new_run_id()
+        try:
+            salt = settings.github_webhook_secret or settings.database_url
+            check_and_record(engine, settings, client_key(client_ip(request), salt), run_id)
+        except LimitReached as e:
+            if cleanup:
+                shutil.rmtree(repo.parent, ignore_errors=True)
+            raise HTTPException(429, str(e)) from e
         pool.submit(execute, run_id, prompt, repo, req.max_iterations, cleanup)
         return {"run_id": run_id}
 

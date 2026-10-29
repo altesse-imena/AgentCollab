@@ -78,3 +78,14 @@ class RunEvent(Base):
     type: Mapped[str] = mapped_column(String(32))
     data: Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class RunRequest(Base):
+    """Runs started through the API, for per-visitor limits. Stores a hash, not the IP."""
+
+    __tablename__ = "run_requests"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    client: Mapped[str] = mapped_column(String(64), index=True)
+    run_id: Mapped[str] = mapped_column(String(36))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)

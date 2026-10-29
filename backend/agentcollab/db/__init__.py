@@ -1,4 +1,4 @@
-from .models import Base, CachedResponse, LLMCall, Run, RunEvent
+from .models import Base, CachedResponse, LLMCall, Run, RunEvent, RunRequest
 from .session import DbResponseCache, make_engine, make_recorder
 
 __all__ = [
@@ -8,6 +8,7 @@ __all__ = [
     "LLMCall",
     "Run",
     "RunEvent",
+    "RunRequest",
     "make_engine",
     "make_recorder",
 ]
