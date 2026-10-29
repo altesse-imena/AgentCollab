@@ -155,3 +155,19 @@ def test_client_errors_are_not_retried(status):
     http, _ = mock(lambda r: (status, {"error": {"message": "bad"}}))
     with pytest.raises(openai.APIStatusError):
         OpenAIProvider("k", http_client=http).chat("gpt-4.1", MESSAGES, json_mode=True)
+
+
+def test_openai_compatible_rejected_json_is_returned_for_repair():
+    # Groq's reply when JSON mode output doesn't parse
+    body = {
+        "error": {
+            "message": "Failed to validate JSON.",
+            "type": "invalid_request_error",
+            "code": "json_validate_failed",
+            "failed_generation": '{"ok": tru',
+        }
+    }
+    http, _ = mock(lambda r: (400, body))
+    resp = OpenAIProvider("k", http_client=http).chat("openai/gpt-oss-20b", MESSAGES, True)
+    assert resp.text == '{"ok": tru'
+    assert resp.model == "openai/gpt-oss-20b" and resp.prompt_tokens == 0

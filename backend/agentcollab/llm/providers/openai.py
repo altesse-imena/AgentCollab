@@ -31,6 +31,11 @@ class OpenAIProvider:
         except self._openai.APIStatusError as e:
             if is_retryable_status(e.status_code):
                 raise TransientProviderError(str(e)) from e
+            if (draft := _rejected_json(e)) is not None:
+                # Usage isn't reported for rejected replies, so tokens are logged as 0.
+                return ProviderResponse(
+                    text=draft, prompt_tokens=0, cached_tokens=0, completion_tokens=0, model=model
+                )
             raise
 
         usage = resp.usage
@@ -42,3 +47,13 @@ class OpenAIProvider:
             completion_tokens=usage.completion_tokens,
             model=resp.model,
         )
+
+
+def _rejected_json(error) -> str | None:
+    """Groq rejects JSON-mode replies that don't parse with a 400 that carries the model's
+    draft. Returning the draft lets the client's repair step ask for a fix instead of failing."""
+    body = error.body if isinstance(error.body, dict) else {}
+    body = body.get("error", body) if isinstance(body.get("error"), dict) else body
+    if body.get("code") == "json_validate_failed":
+        return str(body.get("failed_generation") or "")
+    return None
