@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from .agents import write_code
 from .db import Run
-from .llm import BudgetExceeded, InvalidModelOutput, LLMClient, RunBudget
+from .llm import BudgetExceeded, InvalidModelOutput, LLMClient, ProviderRefusal, RunBudget
 from .repo import gather_context, make_patch, safe_path
 from .repo.files import UnsafePath
 
@@ -55,7 +55,7 @@ def run_task(
         outcome.patch = make_patch(context, files)
     except BudgetExceeded as e:
         outcome.status, outcome.error = "aborted", str(e)
-    except (InvalidModelOutput, UnsafePath) as e:
+    except (InvalidModelOutput, ProviderRefusal, UnsafePath) as e:
         outcome.error = str(e)
     outcome.spent_usd = budget.spent_usd
 

@@ -1,5 +1,5 @@
 from .client import BudgetExceeded, InvalidModelOutput, LLMClient, LLMResult, RunBudget
-from .providers import ChatProvider, ProviderResponse
+from .providers import ChatProvider, ProviderRefusal, ProviderResponse
 
 __all__ = [
     "BudgetExceeded",
@@ -7,6 +7,7 @@ __all__ = [
     "InvalidModelOutput",
     "LLMClient",
     "LLMResult",
+    "ProviderRefusal",
     "ProviderResponse",
     "RunBudget",
 ]

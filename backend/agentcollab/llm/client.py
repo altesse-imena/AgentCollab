@@ -1,6 +1,7 @@
 """The only place that calls a model. Handles retries, output validation, budgets and cost logging."""
 
 import json
+import re
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -10,6 +11,15 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 from .pricing import cost_usd
 from .providers import ChatProvider, ProviderResponse, TransientProviderError
+
+_FENCE = re.compile(r"^```(?:json)?\s*\n(.*)\n```\s*$", re.DOTALL)
+
+
+def parse_json(text: str):
+    """Parse a JSON reply, tolerating a surrounding ```json fence."""
+    text = text.strip()
+    match = _FENCE.match(text)
+    return json.loads(match.group(1) if match else text)
 
 
 class BudgetExceeded(Exception):
@@ -90,7 +100,7 @@ class LLMClient:
         for attempt in (1, 2):
             resp = self._call(agent, model, convo, budget, attempt, calls)
             try:
-                return LLMResult(output=schema.model_validate(json.loads(resp.text)), calls=calls)
+                return LLMResult(output=schema.model_validate(parse_json(resp.text)), calls=calls)
             except (json.JSONDecodeError, ValidationError) as e:
                 if attempt == 2:
                     raise InvalidModelOutput(f"{agent} returned invalid output twice: {e}") from e
@@ -116,12 +126,16 @@ class LLMClient:
         budget.check()
         start = time.perf_counter()
         resp = self._chat(model, messages, True)
-        cost = cost_usd(model, resp.prompt_tokens, resp.cached_tokens, resp.completion_tokens)
+        served = resp.model or model
+        cost = cost_usd(
+            served, resp.prompt_tokens, resp.cached_tokens, resp.completion_tokens,
+            resp.cache_write_tokens,
+        )
         budget.spent_usd += cost or 0.0
         record = CallRecord(
             run_id=budget.run_id,
             agent=agent,
-            model=model,
+            model=served,
             prompt_tokens=resp.prompt_tokens,
             cached_tokens=resp.cached_tokens,
             completion_tokens=resp.completion_tokens,

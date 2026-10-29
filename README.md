@@ -18,11 +18,23 @@ Intake ─► ContextGatherer ─► CodeWriter ─┬─► TestGenerator ─�
 ```bash
 cd backend
 python3.12 -m venv .venv && .venv/bin/pip install -e ".[dev]"
-cp .env.example .env            # add your OPENAI_API_KEY
+cp .env.example .env            # pick a provider and add its API key
 .venv/bin/agentcollab run "Add a function that reverses a string" --repo ../path/to/repo
 .venv/bin/agentcollab run "..." --repo ../path/to/repo --apply   # write the changes
 .venv/bin/pytest -q             # tests use a fake model and cost nothing
 ```
+
+### Switching model providers
+
+Set `AGENTCOLLAB_PROVIDER` in `backend/.env`. No code changes are needed.
+
+| Provider | Setting | Key |
+|---|---|---|
+| OpenAI (default) | `openai` | `OPENAI_API_KEY` |
+| Anthropic Claude | `anthropic` | `ANTHROPIC_API_KEY` |
+| Any OpenAI-compatible API (OpenRouter, Groq, Together, Ollama...) | `openai_compatible` + `AGENTCOLLAB_BASE_URL` | `AGENTCOLLAB_API_KEY` |
+
+Each agent can use its own model (`AGENTCOLLAB_MODEL_WRITER`, `..._REVIEWER`, `..._TESTER`, `..._SECURITY`). Adding a provider means writing one adapter in `backend/agentcollab/llm/providers/`. Add the model's prices to `llm/pricing.py` so costs are tracked.
 
 SQLite is used by default. To use Postgres, run `docker compose up -d db` and set `DATABASE_URL` in `.env`.
 
