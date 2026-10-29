@@ -3,6 +3,7 @@ from .base import (
     ProviderResponse,
     TransientProviderError,
     is_retryable_status,
+    retry_after_s,
 )
 
 # Models that accept server-side refusal fallbacks ("default" routing)
@@ -54,7 +55,7 @@ class AnthropicProvider:
             raise TransientProviderError(str(e)) from e
         except self._anthropic.APIStatusError as e:
             if is_retryable_status(e.status_code):
-                raise TransientProviderError(str(e)) from e
+                raise TransientProviderError(str(e), retry_after_s(e)) from e
             raise
 
         if resp.stop_reason == "refusal":

@@ -40,7 +40,7 @@ def test_transient_errors_are_retried(make_llm):
 
 
 def test_retries_give_up_after_max_attempts(make_llm):
-    llm, _ = make_llm([TransientProviderError("429")] * 4)
+    llm, _ = make_llm([TransientProviderError("429")] * 6)
     with pytest.raises(TransientProviderError):
         ask(llm)
 
@@ -116,3 +116,21 @@ def test_cached_reply_that_no_longer_fits_schema_is_ignored():
     provider = FakeProvider([{"value": 3}])
     assert ask(LLMClient(provider, wait_max_s=0, cache=cache)).output.value == 3
     assert len(provider.calls) == 1
+
+
+def test_backoff_waits_for_retry_after_hint():
+    from tenacity import RetryCallState
+
+    from agentcollab.llm.client import MAX_RETRY_AFTER_S, backoff
+
+    def state_with(error):
+        state = RetryCallState(retry_object=None, fn=None, args=(), kwargs={})
+        state.attempt_number = 1
+        state.set_exception((type(error), error, None))
+        return state
+
+    wait = backoff(wait_max_s=20)
+    assert wait(state_with(TransientProviderError("429", retry_after_s=30))) == 30
+    assert wait(state_with(TransientProviderError("429", retry_after_s=600))) == MAX_RETRY_AFTER_S
+    assert wait(state_with(TransientProviderError("503"))) == 1  # plain exponential backoff
+    assert backoff(wait_max_s=0)(state_with(TransientProviderError("429", 30))) == 0

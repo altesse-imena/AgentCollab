@@ -12,7 +12,13 @@ from dataclasses import dataclass, field
 from typing import Protocol
 
 from pydantic import BaseModel, ValidationError
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+from tenacity import (
+    RetryCallState,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from .pricing import cost_usd
 from .providers import ChatProvider, ProviderResponse, TransientProviderError
@@ -25,6 +31,26 @@ def parse_json(text: str):
     text = text.strip()
     match = _FENCE.match(text)
     return json.loads(match.group(1) if match else text)
+
+
+MAX_RETRY_AFTER_S = 60.0
+
+
+def backoff(wait_max_s: float):
+    """Exponential backoff that waits at least as long as the provider's Retry-After hint.
+
+    Per-minute rate limits (e.g. Groq's free tier) can take most of a minute to reset, longer
+    than the backoff alone would wait.
+    """
+    exponential = wait_exponential(multiplier=1, max=wait_max_s)
+
+    def wait(state: RetryCallState) -> float:
+        if wait_max_s == 0:
+            return 0.0
+        hint = getattr(state.outcome.exception(), "retry_after_s", None) if state.outcome else None
+        return max(exponential(state), min(hint or 0.0, MAX_RETRY_AFTER_S))
+
+    return wait
 
 
 class BudgetExceeded(Exception):
@@ -90,7 +116,7 @@ class LLMClient:
         self,
         provider: ChatProvider,
         recorder: Recorder | None = None,
-        max_attempts: int = 4,
+        max_attempts: int = 6,
         wait_max_s: float = 20.0,
         cache: ResponseCache | None = None,
     ):
@@ -101,7 +127,7 @@ class LLMClient:
         self._chat = retry(
             retry=retry_if_exception_type(TransientProviderError),
             stop=stop_after_attempt(max_attempts),
-            wait=wait_exponential(multiplier=1, max=wait_max_s),
+            wait=backoff(wait_max_s),
             reraise=True,
         )(self._provider.chat)
 

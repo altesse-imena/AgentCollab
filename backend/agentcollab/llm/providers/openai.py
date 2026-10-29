@@ -1,4 +1,4 @@
-from .base import ProviderResponse, TransientProviderError, is_retryable_status
+from .base import ProviderResponse, TransientProviderError, is_retryable_status, retry_after_s
 
 
 class OpenAIProvider:
@@ -30,7 +30,7 @@ class OpenAIProvider:
             raise TransientProviderError(str(e)) from e
         except self._openai.APIStatusError as e:
             if is_retryable_status(e.status_code):
-                raise TransientProviderError(str(e)) from e
+                raise TransientProviderError(str(e), retry_after_s(e)) from e
             if (draft := _rejected_json(e)) is not None:
                 # Usage isn't reported for rejected replies, so tokens are logged as 0.
                 return ProviderResponse(

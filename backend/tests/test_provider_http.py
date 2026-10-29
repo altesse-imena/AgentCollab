@@ -171,3 +171,15 @@ def test_openai_compatible_rejected_json_is_returned_for_repair():
     resp = OpenAIProvider("k", http_client=http).chat("openai/gpt-oss-20b", MESSAGES, True)
     assert resp.text == '{"ok": tru'
     assert resp.model == "openai/gpt-oss-20b" and resp.prompt_tokens == 0
+
+
+def test_rate_limit_keeps_retry_after_hint():
+    def handler(request):
+        return httpx.Response(
+            429, headers={"retry-after": "7"}, json={"error": {"message": "slow"}}
+        )
+
+    http = httpx.Client(transport=httpx.MockTransport(handler))
+    with pytest.raises(TransientProviderError) as err:
+        OpenAIProvider("k", http_client=http).chat("gpt-4.1", MESSAGES, json_mode=True)
+    assert err.value.retry_after_s == 7.0
