@@ -79,11 +79,11 @@ def run_task(
         "max_iterations": max_iterations,
         "budget_usd": budget_usd,
     }
-    state = _execute(graph, initial, run_id, events)
+    state = _execute(graph, initial, run_id, events, engine)
     return _finish(engine, events, state)
 
 
-def _execute(graph, graph_input, run_id: str, events: EventLog | None) -> dict:
+def _execute(graph, graph_input, run_id: str, events: EventLog | None, engine: Engine) -> dict:
     """Run the graph, emitting an event as each node starts and finishes."""
     config = {"configurable": {"thread_id": run_id}}
     state = None
@@ -100,8 +100,13 @@ def _execute(graph, graph_input, run_id: str, events: EventLog | None) -> dict:
                 else:
                     events.emit(run_id, "node_started", {"node": node, "label": NODE_LABELS[node]})
     except Exception as e:
+        error = f"{type(e).__name__}: {e}"
+        with Session(engine) as s:  # so it doesn't look like it's still running
+            run = s.get(Run, run_id)
+            run.status, run.error = "crashed", error
+            s.commit()
         if events:
-            events.emit(run_id, "run_crashed", {"error": f"{type(e).__name__}: {e}"})
+            events.emit(run_id, "run_crashed", {"error": error})
         raise
     return state
 
@@ -152,7 +157,7 @@ def resume_task(
         return outcome_from_state(snapshot.values)
     if events:
         events.emit(run_id, "run_resumed", {})
-    state = _execute(graph, None, run_id, events)
+    state = _execute(graph, None, run_id, events, engine)
     return _finish(engine, events, state)
 
 

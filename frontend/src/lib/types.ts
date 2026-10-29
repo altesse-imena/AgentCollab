@@ -20,7 +20,7 @@ export interface Task {
   prompt: string
 }
 
-export type RunStatus = 'running' | 'passed' | 'failed' | 'aborted'
+export type RunStatus = 'running' | 'passed' | 'failed' | 'aborted' | 'crashed'
 
 export interface RunSummary {
   id: string

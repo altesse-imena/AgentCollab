@@ -27,7 +27,9 @@ class Run(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     task: Mapped[str] = mapped_column(Text)
-    status: Mapped[str] = mapped_column(String(16), default="running")
+    status: Mapped[str] = mapped_column(
+        String(16), default="running"
+    )  # or passed/failed/aborted/crashed
     budget_usd: Mapped[float] = mapped_column(Float)
     spent_usd: Mapped[float] = mapped_column(Float, default=0.0)
     patch: Mapped[str | None] = mapped_column(Text, nullable=True)

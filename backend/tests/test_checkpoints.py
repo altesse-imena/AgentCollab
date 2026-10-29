@@ -34,12 +34,20 @@ def test_crashed_run_resumes_without_redoing_finished_steps(make_deps, engine, r
         with pytest.raises(RuntimeError, match="server went down"):
             run_task(deps=deps, engine=engine, task="t", repo=repo, budget_usd=1.0,
                      checkpointer=saver, on_start=started.append)  # fmt: skip
+        from sqlalchemy.orm import Session
+
+        from agentcollab.db import Run
+
+        with Session(engine) as s:
+            assert s.get(Run, started[0]).status == "crashed"
         calls_before = len(provider.calls)
         assert calls_before == 4  # writer + three parallel agents finished before the crash
 
         out = resume_task(deps=deps, engine=engine, run_id=started[0], checkpointer=saver)
     assert out.status == "passed"
-    assert len(provider.calls) == calls_before  # no model calls were repeated
+    assert len(provider.calls) == calls_before
+    with Session(engine) as s:
+        assert s.get(Run, started[0]).status == "passed"  # no model calls were repeated
 
 
 def test_resuming_a_finished_run_returns_its_result(make_deps, engine, repo, tmp_path):
