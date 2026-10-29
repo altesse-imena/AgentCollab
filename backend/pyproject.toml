@@ -3,6 +3,7 @@ name = "agentcollab"
 version = "0.1.0"
 description = "Multi-agent coding assistant: writer, reviewer, tester and security agents orchestrated with LangGraph"
 requires-python = ">=3.12"
+license = "MIT"
 dependencies = [
   "fastapi>=0.115",
   "uvicorn[standard]>=0.30",

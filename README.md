@@ -194,3 +194,7 @@ CI runs everything on each push.
   need no extra packages. Bake dependencies into `backend/sandbox-image/Dockerfile` to widen this.
 - CodeWriter returns whole files, which suits small and medium files. Very large files would be
   better served by edit-based output.
+
+## License
+
+[MIT](LICENSE)
