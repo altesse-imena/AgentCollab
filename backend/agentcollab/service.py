@@ -1,6 +1,7 @@
 """Runs a task through the agent workflow and records the run."""
 
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -16,6 +17,7 @@ from .repo import make_patch
 @dataclass
 class RunOutcome:
     run_id: str
+    repo_path: str
     status: str  # "passed" | "failed" | "aborted"
     summary: str
     files: dict[str, str]  # code changes plus generated tests
@@ -33,6 +35,7 @@ def outcome_from_state(state: dict) -> RunOutcome:
         files[f["path"]] = f["content"]
     return RunOutcome(
         run_id=state["run_id"],
+        repo_path=state["repo_path"],
         status=state["status"],
         summary=change["summary"],
         files=files,
@@ -53,11 +56,14 @@ def run_task(
     budget_usd: float,
     max_iterations: int = 3,
     checkpointer=None,
+    on_start: Callable[[str], None] | None = None,
 ) -> RunOutcome:
     run_id = str(uuid.uuid4())
     with Session(engine) as s:
         s.add(Run(id=run_id, task=task, budget_usd=budget_usd))
         s.commit()
+    if on_start:
+        on_start(run_id)  # lets callers show the id, which is needed to resume after a crash
 
     graph = build_graph(deps, checkpointer=checkpointer)
     state = graph.invoke(
@@ -70,6 +76,24 @@ def run_task(
         },
         config={"configurable": {"thread_id": run_id}},
     )
+    outcome = outcome_from_state(state)
+    _save(engine, outcome)
+    return outcome
+
+
+class UnknownRun(LookupError):
+    pass
+
+
+def resume_task(*, deps: Deps, engine: Engine, run_id: str, checkpointer) -> RunOutcome:
+    """Continue a run from its last saved step (e.g. after a crash)."""
+    graph = build_graph(deps, checkpointer=checkpointer)
+    config = {"configurable": {"thread_id": run_id}}
+    snapshot = graph.get_state(config)
+    if not snapshot.values:
+        raise UnknownRun(run_id)
+    # Nothing left to run means it already finished; otherwise pick up from the saved step
+    state = graph.invoke(None, config) if snapshot.next else snapshot.values
     outcome = outcome_from_state(state)
     _save(engine, outcome)
     return outcome
