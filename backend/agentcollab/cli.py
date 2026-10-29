@@ -55,7 +55,7 @@ def main(argv: list[str] | None = None) -> int:
         return _check_tasks(args)
 
     try:
-        engine, deps = build(settings)
+        engine, deps, events = build(settings)
     except MissingAPIKey as e:
         print(e, file=sys.stderr)
         return 2
@@ -81,10 +81,15 @@ def main(argv: list[str] | None = None) -> int:
                     max_iterations=args.max_iterations,
                     checkpointer=checkpointer,
                     on_start=lambda run_id: print(f"run {run_id} started", file=sys.stderr),
+                    events=events,
                 )
             else:
                 outcome = resume_task(
-                    deps=deps, engine=engine, run_id=args.run_id, checkpointer=checkpointer
+                    deps=deps,
+                    engine=engine,
+                    run_id=args.run_id,
+                    checkpointer=checkpointer,
+                    events=events,
                 )
         except UnknownRun as e:
             print(f"no saved progress for run {e}", file=sys.stderr)

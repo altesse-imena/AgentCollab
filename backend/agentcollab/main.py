@@ -25,7 +25,7 @@ def create_run(req: RunRequest) -> dict:
     # Local-only for now: runs against a path on this machine
     settings = get_settings()
     try:
-        engine, deps = build(settings)
+        engine, deps, _ = build(settings)
     except MissingAPIKey as e:
         raise HTTPException(503, str(e)) from e
     repo = Path(req.repo_path)

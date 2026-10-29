@@ -1,6 +1,16 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -53,4 +63,18 @@ class CachedResponse(Base):
     key: Mapped[str] = mapped_column(String(64), primary_key=True)
     model: Mapped[str] = mapped_column(String(64))
     text: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class RunEvent(Base):
+    """What happened during a run, in order. Drives the live UI and replays."""
+
+    __tablename__ = "run_events"
+    __table_args__ = (UniqueConstraint("run_id", "seq"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("runs.id"), index=True)
+    seq: Mapped[int] = mapped_column(Integer)
+    type: Mapped[str] = mapped_column(String(32))
+    data: Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
