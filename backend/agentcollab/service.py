@@ -1,18 +1,16 @@
-"""Runs a task end to end. Week 1: CodeWriter only. Week 2 swaps this for the LangGraph workflow."""
+"""Runs a task through the agent workflow and records the run."""
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
-from .agents import write_code
 from .db import Run
-from .llm import BudgetExceeded, InvalidModelOutput, LLMClient, ProviderRefusal, RunBudget
-from .repo import gather_context, make_patch, safe_path
-from .repo.files import UnsafePath
+from .graph import Deps, build_graph
+from .repo import make_patch
 
 
 @dataclass
@@ -20,51 +18,69 @@ class RunOutcome:
     run_id: str
     status: str  # "passed" | "failed" | "aborted"
     summary: str
-    files: dict[str, str]
+    files: dict[str, str]  # code changes plus generated tests
     patch: str
     spent_usd: float
+    iterations: int
     error: str | None = None
+    history: list[dict] = field(default_factory=list)
+
+
+def outcome_from_state(state: dict) -> RunOutcome:
+    change = state.get("change") or {"summary": "", "files": []}
+    files = {f["path"]: f["content"] for f in change["files"]}
+    for f in (state.get("tests") or {}).get("files", []):
+        files[f["path"]] = f["content"]
+    return RunOutcome(
+        run_id=state["run_id"],
+        status=state["status"],
+        summary=change["summary"],
+        files=files,
+        patch=make_patch(state.get("context", {}), files) if files else "",
+        spent_usd=state.get("spent_usd", 0.0),
+        iterations=state.get("iteration", 0),
+        error=state.get("error"),
+        history=state.get("history", []),
+    )
 
 
 def run_task(
     *,
-    llm: LLMClient,
+    deps: Deps,
     engine: Engine,
     task: str,
     repo: Path,
-    model: str,
     budget_usd: float,
+    max_iterations: int = 3,
+    checkpointer=None,
 ) -> RunOutcome:
     run_id = str(uuid.uuid4())
-    budget = RunBudget(run_id=run_id, limit_usd=budget_usd)
     with Session(engine) as s:
         s.add(Run(id=run_id, task=task, budget_usd=budget_usd))
         s.commit()
 
-    context = gather_context(repo)
-    outcome = RunOutcome(run_id, "failed", "", {}, "", 0.0)
-    try:
-        result = write_code(llm, model=model, task=task, context=context, budget=budget)
-        files = {}
-        for edit in result.output.files:
-            safe_path(repo, edit.path)
-            files[edit.path] = edit.content
-        outcome.status = "passed"
-        outcome.summary = result.output.summary
-        outcome.files = files
-        outcome.patch = make_patch(context, files)
-    except BudgetExceeded as e:
-        outcome.status, outcome.error = "aborted", str(e)
-    except (InvalidModelOutput, ProviderRefusal, UnsafePath) as e:
-        outcome.error = str(e)
-    outcome.spent_usd = budget.spent_usd
+    graph = build_graph(deps, checkpointer=checkpointer)
+    state = graph.invoke(
+        {
+            "run_id": run_id,
+            "task": task,
+            "repo_path": str(repo.resolve()),
+            "max_iterations": max_iterations,
+            "budget_usd": budget_usd,
+        },
+        config={"configurable": {"thread_id": run_id}},
+    )
+    outcome = outcome_from_state(state)
+    _save(engine, outcome)
+    return outcome
 
+
+def _save(engine: Engine, outcome: RunOutcome) -> None:
     with Session(engine) as s:
-        run = s.get(Run, run_id)
+        run = s.get(Run, outcome.run_id)
         run.status = outcome.status
         run.spent_usd = outcome.spent_usd
         run.patch = outcome.patch or None
         run.error = outcome.error
         run.finished_at = datetime.now(UTC)
         s.commit()
-    return outcome
