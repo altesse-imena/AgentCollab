@@ -143,13 +143,14 @@ export function AgentGraph({ view }: { view: RunView }) {
   }, [view.nodes, view.iteration])
 
   return (
-    <div className="h-[360px] w-full">
+    <div className="h-[300px] w-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.12 }}
+        fitViewOptions={{ padding: 0.06 }}
+        style={{ background: 'transparent' }}
         proOptions={{ hideAttribution: true }}
         nodesConnectable={false}
         elementsSelectable={false}
@@ -159,7 +160,7 @@ export function AgentGraph({ view }: { view: RunView }) {
         zoomOnDoubleClick={false}
         colorMode="dark"
       >
-        <Background color="#1e293b" gap={20} />
+        <Background color="#1e293b" gap={20} bgColor="transparent" />
       </ReactFlow>
     </div>
   )
