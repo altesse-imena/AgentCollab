@@ -3,11 +3,13 @@
 Handles retries, output validation, per-run budgets and cost logging.
 """
 
+import hashlib
 import json
 import re
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import Protocol
 
 from pydantic import BaseModel, ValidationError
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
@@ -59,6 +61,19 @@ class CallRecord:
     cost_usd: float | None
     latency_ms: int
     attempt: int
+    cache_hit: bool = False
+
+
+class ResponseCache(Protocol):
+    """Stores validated replies by request, so an identical request is answered for free."""
+
+    def get(self, key: str) -> str | None: ...
+    def set(self, key: str, model: str, text: str) -> None: ...
+
+
+def cache_key(model: str, messages: list[dict]) -> str:
+    payload = json.dumps({"model": model, "messages": messages}, sort_keys=True)
+    return hashlib.sha256(payload.encode()).hexdigest()
 
 
 @dataclass
@@ -77,9 +92,11 @@ class LLMClient:
         recorder: Recorder | None = None,
         max_attempts: int = 4,
         wait_max_s: float = 20.0,
+        cache: ResponseCache | None = None,
     ):
         self._provider = provider
         self._record = recorder or (lambda _: None)
+        self._cache = cache
         # wait_max_s=0 disables the backoff wait (used by tests)
         self._chat = retry(
             retry=retry_if_exception_type(TransientProviderError),
@@ -99,11 +116,14 @@ class LLMClient:
     ) -> LLMResult[T]:
         """Ask for JSON matching `schema`. A malformed reply gets one repair attempt."""
         calls: list[CallRecord] = []
+        key = cache_key(model, messages) if self._cache else None
+        if key and (cached := self._from_cache(key, schema, agent, model, budget, calls)):
+            return cached
         convo = list(messages)
         for attempt in (1, 2):
             resp = self._call(agent, model, convo, budget, attempt, calls)
             try:
-                return LLMResult(output=schema.model_validate(parse_json(resp.text)), calls=calls)
+                output = schema.model_validate(parse_json(resp.text))
             except (json.JSONDecodeError, ValidationError) as e:
                 if attempt == 2:
                     raise InvalidModelOutput(f"{agent} returned invalid output twice: {e}") from e
@@ -115,7 +135,26 @@ class LLMClient:
                         f"Error: {e}\nReply again with only the corrected JSON object.",
                     },
                 ]
+                continue
+            if key:
+                self._cache.set(key, model, resp.text)
+            return LLMResult(output=output, calls=calls)
         raise AssertionError("unreachable")
+
+    def _from_cache[T: BaseModel](
+        self, key: str, schema: type[T], agent: str, model: str, budget: RunBudget, calls: list
+    ) -> LLMResult[T] | None:
+        text = self._cache.get(key)
+        if text is None:
+            return None
+        try:
+            output = schema.model_validate(parse_json(text))
+        except (json.JSONDecodeError, ValidationError):
+            return None  # schema changed since it was cached; ask the model again
+        record = CallRecord(budget.run_id, agent, model, 0, 0, 0, 0.0, 0, 1, cache_hit=True)
+        calls.append(record)
+        self._record(record)
+        return LLMResult(output=output, calls=calls)
 
     def _call(
         self,

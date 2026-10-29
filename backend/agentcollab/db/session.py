@@ -4,7 +4,7 @@ from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session
 
 from ..llm.client import CallRecord
-from .models import Base, LLMCall
+from .models import Base, CachedResponse, LLMCall
 
 
 def make_engine(url: str) -> Engine:
@@ -23,3 +23,18 @@ def make_recorder(engine: Engine):
             s.commit()
 
     return record
+
+
+class DbResponseCache:
+    def __init__(self, engine: Engine):
+        self.engine = engine
+
+    def get(self, key: str) -> str | None:
+        with Session(self.engine) as s:
+            row = s.get(CachedResponse, key)
+            return row.text if row else None
+
+    def set(self, key: str, model: str, text: str) -> None:
+        with Session(self.engine) as s:
+            s.merge(CachedResponse(key=key, model=model, text=text))
+            s.commit()

@@ -3,7 +3,7 @@
 from sqlalchemy import Engine
 
 from .config import Settings
-from .db import make_engine, make_recorder
+from .db import DbResponseCache, make_engine, make_recorder
 from .graph import Deps
 from .llm import LLMClient
 from .llm.providers import make_provider
@@ -24,5 +24,6 @@ def build(settings: Settings) -> tuple[Engine, Deps]:
     provider = make_provider(
         settings.agentcollab_provider, settings.api_key, settings.agentcollab_base_url
     )
-    llm = LLMClient(provider, recorder=make_recorder(engine))
+    cache = DbResponseCache(engine) if settings.agentcollab_response_cache else None
+    llm = LLMClient(provider, recorder=make_recorder(engine), cache=cache)
     return engine, Deps(llm=llm, sandbox=DockerSandbox(), model_for=settings.model_for)

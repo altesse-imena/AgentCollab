@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     agentcollab_api_key: str | None = None  # for openai_compatible
 
+    # Cost optimizations; each can be switched off to measure it against a baseline
+    agentcollab_response_cache: bool = False
+
     database_url: str = "sqlite:///./agentcollab.db"
     agentcollab_run_budget_usd: float = 0.50
 

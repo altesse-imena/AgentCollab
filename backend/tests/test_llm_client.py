@@ -66,3 +66,53 @@ def test_budget_stops_new_calls(make_llm):
     with pytest.raises(BudgetExceeded):
         ask(llm, budget)
     assert len(provider.calls) == 1
+
+
+class MemoryCache:
+    def __init__(self):
+        self.data = {}
+
+    def get(self, key):
+        return self.data.get(key)
+
+    def set(self, key, model, text):
+        self.data[key] = text
+
+
+def test_response_cache_answers_repeat_requests_for_free(engine):
+    from agentcollab.db import DbResponseCache
+    from agentcollab.db.session import make_recorder
+    from agentcollab.llm import LLMClient
+    from tests.conftest import FakeProvider
+
+    provider = FakeProvider([{"value": 5}])
+    llm = LLMClient(provider, recorder=make_recorder(engine), wait_max_s=0,
+                    cache=DbResponseCache(engine))  # fmt: skip
+    first, second = ask(llm), ask(llm)
+    assert first.output.value == second.output.value == 5
+    assert len(provider.calls) == 1
+    assert second.calls[0].cache_hit and second.calls[0].cost_usd == 0.0
+    with Session(engine) as s:
+        assert [r.cache_hit for r in s.scalars(select(LLMCall))] == [False, True]
+
+
+def test_invalid_replies_are_not_cached(engine):
+    from agentcollab.llm import LLMClient
+    from tests.conftest import FakeProvider
+
+    cache = MemoryCache()
+    llm = LLMClient(FakeProvider(["nope", {"value": 1}]), wait_max_s=0, cache=cache)
+    ask(llm)
+    assert list(cache.data.values()) == ['{"value": 1}']  # stored under the original request
+
+
+def test_cached_reply_that_no_longer_fits_schema_is_ignored():
+    from agentcollab.llm import LLMClient
+    from agentcollab.llm.client import cache_key
+    from tests.conftest import FakeProvider
+
+    cache = MemoryCache()
+    cache.data[cache_key("gpt-4.1", [{"role": "user", "content": "hi"}])] = '{"old": 1}'
+    provider = FakeProvider([{"value": 3}])
+    assert ask(LLMClient(provider, wait_max_s=0, cache=cache)).output.value == 3
+    assert len(provider.calls) == 1

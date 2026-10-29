@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -41,4 +41,16 @@ class LLMCall(Base):
     cost_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
     latency_ms: Mapped[int] = mapped_column(Integer)
     attempt: Mapped[int] = mapped_column(Integer)
+    cache_hit: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class CachedResponse(Base):
+    """Validated model replies, keyed by a hash of the model and the exact messages."""
+
+    __tablename__ = "llm_cache"
+
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    model: Mapped[str] = mapped_column(String(64))
+    text: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
