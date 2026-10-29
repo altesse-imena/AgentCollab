@@ -1,0 +1,5 @@
+{
+  "id": "paginate_off_by_one",
+  "kind": "bug",
+  "prompt": "`paginate(items, page, size)` in pagination.py is supposed to use 1-based page numbers, but page 1 skips the first page of results. Fix it. Pages past the end return an empty list, and page or size below 1 raise ValueError."
+}

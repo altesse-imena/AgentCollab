@@ -1,0 +1,5 @@
+{
+  "id": "money_rounding",
+  "kind": "bug",
+  "prompt": "`order_total(items, tax_rate)` in billing.py uses floats, so totals come out like 0.30000000000000004 and round inconsistently. Rewrite it to use decimal.Decimal: prices and tax_rate may be given as str, int or Decimal; return a Decimal rounded to cents with ROUND_HALF_UP. items is a list of (price, quantity) pairs."
+}

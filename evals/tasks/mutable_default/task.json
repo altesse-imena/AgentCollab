@@ -1,0 +1,5 @@
+{
+  "id": "mutable_default",
+  "kind": "bug",
+  "prompt": "Tags leak between calls of `add_tag` in tags.py: calling it without a list keeps returning tags from earlier calls. Fix the bug without changing the function's signature or behavior otherwise (it should still append to a list that is passed in and return it)."
+}

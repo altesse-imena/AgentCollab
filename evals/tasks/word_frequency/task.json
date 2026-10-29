@@ -1,0 +1,5 @@
+{
+  "id": "word_frequency",
+  "kind": "feature",
+  "prompt": "Implement `top_words(text, n)` in words.py. Count words case-insensitively, where a word is a run of letters and apostrophes (e.g. \"don't\"). Return the n most common as a list of (word, count) tuples, most common first, with ties broken alphabetically. n below 1 returns an empty list."
+}

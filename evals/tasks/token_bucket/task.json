@@ -1,0 +1,5 @@
+{
+  "id": "token_bucket",
+  "kind": "feature",
+  "prompt": "Implement `TokenBucket` in ratelimit.py. `TokenBucket(capacity, refill_per_second, clock=time.monotonic)` starts full. `allow(cost=1)` refills based on elapsed clock time (never above capacity), then returns True and spends the tokens if enough are available, otherwise False without spending. capacity and refill_per_second must be positive (ValueError otherwise)."
+}

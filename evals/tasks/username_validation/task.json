@@ -1,0 +1,5 @@
+{
+  "id": "username_validation",
+  "kind": "feature",
+  "prompt": "Implement `validate_username(name)` in accounts.py. Return the username lowercased if valid, else raise ValueError with a helpful message. Valid usernames are 3 to 20 characters of ASCII letters, digits, underscores or single hyphens; they must start with a letter, can't end with a hyphen or underscore, and can't contain two separators in a row. Reserved names \"admin\", \"root\" and \"support\" are rejected regardless of case."
+}

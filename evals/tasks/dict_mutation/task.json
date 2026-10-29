@@ -1,0 +1,5 @@
+{
+  "id": "dict_mutation",
+  "kind": "bug",
+  "prompt": "`remove_expired(sessions, now)` in sessions.py crashes with \"dictionary changed size during iteration\". Fix it so it removes, in place, every session whose expires_at is earlier than or equal to now, and returns the number removed."
+}

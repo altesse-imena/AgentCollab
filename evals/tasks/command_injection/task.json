@@ -1,0 +1,5 @@
+{
+  "id": "command_injection",
+  "kind": "security",
+  "prompt": "`ping(host)` in netcheck.py passes user input to a shell, allowing command injection (e.g. \"8.8.8.8; rm -rf /\"). Fix it: validate that host is a hostname (letters, digits, hyphens and dots, up to 253 characters) or an IPv4/IPv6 address, raising ValueError otherwise, and call subprocess.run with an argument list and no shell. Keep the same command (`ping -c 1 <host>`) and return True when the exit code is 0."
+}

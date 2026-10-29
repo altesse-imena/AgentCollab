@@ -1,0 +1,5 @@
+{
+  "id": "slugify",
+  "kind": "feature",
+  "prompt": "Implement `slugify(text)` in text_utils.py. Lowercase the text, turn every run of characters that are not ASCII letters or digits into a single hyphen, and strip leading and trailing hyphens. An input with no letters or digits returns an empty string."
+}

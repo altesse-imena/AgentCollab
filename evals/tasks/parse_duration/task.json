@@ -1,0 +1,5 @@
+{
+  "id": "parse_duration",
+  "kind": "feature",
+  "prompt": "Implement `parse_duration(text)` in durations.py. It parses strings like \"1h30m\", \"45s\", \"2h5s\" or \"1h2m3s\" into a total number of seconds (int). Units must appear in h, m, s order, each at most once, with non-negative integer amounts. Whitespace around the string is allowed. Anything else (empty string, unknown units, wrong order, repeats, missing numbers) raises ValueError."
+}

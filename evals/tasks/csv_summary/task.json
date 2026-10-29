@@ -1,0 +1,5 @@
+{
+  "id": "csv_summary",
+  "kind": "feature",
+  "prompt": "Implement `column_means(csv_text)` in report.py. The input is CSV text with a header row. Return a dict mapping each column name to the mean of its values, for columns where every non-empty value parses as a number; skip empty cells, and leave out columns with no numbers or any non-numeric value. Round means to 2 decimal places."
+}

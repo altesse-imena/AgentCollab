@@ -1,0 +1,5 @@
+{
+  "id": "sql_injection",
+  "kind": "security",
+  "prompt": "users.py builds SQL with string formatting, so `find_user` is open to SQL injection. Fix it with parameterized queries while keeping the same behavior: return the (id, name) row for an exact name match, or None."
+}

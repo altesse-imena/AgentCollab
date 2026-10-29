@@ -1,0 +1,5 @@
+{
+  "id": "retry_decorator",
+  "kind": "bug",
+  "prompt": "The `retry(times)` decorator in retry.py should call the function up to `times` attempts in total, retrying only on exceptions, and re-raise the last exception if every attempt fails. Right now it makes one attempt too many and swallows the final error by returning None. Fix it, and make it preserve the wrapped function's name and docstring."
+}

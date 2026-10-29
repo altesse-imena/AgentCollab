@@ -1,0 +1,5 @@
+{
+  "id": "roman_numerals",
+  "kind": "feature",
+  "prompt": "Implement `to_roman(n)` in roman.py, converting an integer from 1 to 3999 to a Roman numeral string using subtractive notation (e.g. 4 is IV, 900 is CM). Raise ValueError for anything outside 1..3999, and TypeError for non-integers (including bool)."
+}

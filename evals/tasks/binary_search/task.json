@@ -1,0 +1,5 @@
+{
+  "id": "binary_search",
+  "kind": "bug",
+  "prompt": "`binary_search(items, target)` in search.py returns the index of target in a sorted list or -1, but it never finds the last element and loops forever on some inputs. Fix it."
+}

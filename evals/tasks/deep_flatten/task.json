@@ -1,0 +1,5 @@
+{
+  "id": "deep_flatten",
+  "kind": "bug",
+  "prompt": "`flatten(items)` in flatten.py only flattens one level of nesting. Fix it to flatten lists and tuples nested to any depth, preserving order. Strings and bytes must be treated as single values, not iterated."
+}

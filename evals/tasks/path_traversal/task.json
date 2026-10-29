@@ -1,0 +1,5 @@
+{
+  "id": "path_traversal",
+  "kind": "security",
+  "prompt": "`read_upload(base_dir, filename)` in uploads.py lets callers read any file on disk with names like \"../../etc/passwd\" or absolute paths. Make it raise ValueError for any filename that would resolve outside base_dir (including via symlinks), while still allowing files in subdirectories of base_dir."
+}

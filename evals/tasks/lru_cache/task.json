@@ -1,0 +1,5 @@
+{
+  "id": "lru_cache",
+  "kind": "feature",
+  "prompt": "Implement the `LRUCache` class in lru.py. `LRUCache(capacity)` stores up to capacity keys; `get(key)` returns the value or None and marks the key as recently used; `put(key, value)` inserts or updates and marks it recently used, evicting the least recently used key when over capacity. `len(cache)` returns the number of keys. Capacity below 1 raises ValueError."
+}

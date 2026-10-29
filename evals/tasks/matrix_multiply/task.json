@@ -1,0 +1,5 @@
+{
+  "id": "matrix_multiply",
+  "kind": "feature",
+  "prompt": "Implement `matmul(a, b)` in matrix.py for matrices given as lists of rows. Return the product as a new list of rows. Raise ValueError if either matrix is empty, has rows of different lengths, or the shapes don't allow multiplication."
+}
