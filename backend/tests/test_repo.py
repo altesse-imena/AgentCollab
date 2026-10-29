@@ -26,3 +26,31 @@ def test_patch_and_apply(tmp_path):
     assert "-a\n+b" in patch and "+++ b/pkg/new.py" in patch and "/dev/null" in patch
     apply_files(tmp_path, new)
     assert (tmp_path / "pkg" / "new.py").read_text() == "c\n"
+
+
+def _big_repo(tmp_path):
+    files = {
+        "billing/invoice.py": "from billing.tax import rate\n" + "#" * 500,
+        "billing/tax.py": "rate = 0.05\n" + "#" * 500,
+        "tests/test_invoice.py": "#" * 500,
+        "README.md": "#" * 500,
+        "unrelated/huge.py": "#" * 5000,
+        "unrelated/other.py": "#" * 500,
+    }
+    for path, body in files.items():
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / path).write_text(body)
+    return tmp_path
+
+
+def test_small_repo_sent_whole(tmp_path):
+    repo = _big_repo(tmp_path)
+    assert len(gather_context(repo, "anything")) == 6
+
+
+def test_over_limit_keeps_relevant_files(tmp_path):
+    repo = _big_repo(tmp_path)
+    ctx = gather_context(repo, "Fix rounding in invoice.py", max_total_bytes=2_200)
+    assert list(ctx) == [
+        "billing/invoice.py", "billing/tax.py", "tests/test_invoice.py", "README.md"
+    ]  # fmt: skip

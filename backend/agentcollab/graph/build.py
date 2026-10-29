@@ -30,6 +30,7 @@ class Deps:
     llm: LLMClient
     sandbox: Sandbox
     model_for: Callable[[str], str]
+    context_limit_chars: int = 200_000
 
 
 def _budget(state: RunState) -> RunBudget:
@@ -43,7 +44,9 @@ def _spent(budget: RunBudget, before: float) -> float:
 def build_graph(deps: Deps, checkpointer=None):
     def gather(state: RunState) -> dict:
         return {
-            "context": gather_context(Path(state["repo_path"])),
+            "context": gather_context(
+                Path(state["repo_path"]), state["task"], deps.context_limit_chars
+            ),
             "iteration": 0,
             "spent_usd": 0.0,
             "agent_errors": {},

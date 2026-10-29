@@ -26,4 +26,9 @@ def build(settings: Settings) -> tuple[Engine, Deps]:
     )
     cache = DbResponseCache(engine) if settings.agentcollab_response_cache else None
     llm = LLMClient(provider, recorder=make_recorder(engine), cache=cache)
-    return engine, Deps(llm=llm, sandbox=DockerSandbox(), model_for=settings.model_for)
+    return engine, Deps(
+        llm=llm,
+        sandbox=DockerSandbox(),
+        model_for=settings.model_for,
+        context_limit_chars=settings.agentcollab_context_limit_chars,
+    )

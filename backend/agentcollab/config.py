@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     agentcollab_response_cache: bool = False
     agentcollab_light_roles: str = ""  # e.g. "reviewer,security"
     agentcollab_light_model: str | None = None
+    agentcollab_context_limit_chars: int = 200_000  # max repo text sent to each agent
 
     database_url: str = "sqlite:///./agentcollab.db"
     agentcollab_run_budget_usd: float = 0.50
