@@ -119,3 +119,21 @@ def test_anthropic_refusal_raises():
     )
     with pytest.raises(ProviderRefusal, match="declined"):
         provider.chat("claude-opus-5-5", [{"role": "user", "content": "x"}], json_mode=True)
+
+
+def test_light_roles_use_cheaper_model():
+    s = settings(agentcollab_light_roles="reviewer, security")
+    assert s.model_for("reviewer") == "gpt-4.1-mini" and s.model_for("security") == "gpt-4.1-mini"
+    assert s.model_for("writer") == "gpt-4.1" and s.model_for("tester") == "gpt-4.1"
+    a = settings(agentcollab_provider="anthropic", agentcollab_light_roles="reviewer")
+    assert a.model_for("reviewer") == "claude-sonnet-5-5"
+
+
+def test_explicit_role_model_beats_light_routing():
+    s = settings(agentcollab_light_roles="reviewer", agentcollab_model_reviewer="gpt-5")
+    assert s.model_for("reviewer") == "gpt-5"
+
+
+def test_unknown_light_role_rejected():
+    with pytest.raises(ValueError, match="reviwer"):
+        settings(agentcollab_light_roles="reviwer").model_for("writer")

@@ -10,6 +10,12 @@ DEFAULT_MODELS = {
     "anthropic": "claude-opus-5-5",
     "openai_compatible": None,  # no sensible default; set AGENTCOLLAB_MODEL
 }
+# Cheaper model for roles listed in AGENTCOLLAB_LIGHT_ROLES
+DEFAULT_LIGHT_MODELS = {
+    "openai": "gpt-4.1-mini",
+    "anthropic": "claude-sonnet-5-5",
+    "openai_compatible": None,  # set AGENTCOLLAB_LIGHT_MODEL
+}
 
 
 class Settings(BaseSettings):
@@ -29,6 +35,8 @@ class Settings(BaseSettings):
 
     # Cost optimizations; each can be switched off to measure it against a baseline
     agentcollab_response_cache: bool = False
+    agentcollab_light_roles: str = ""  # e.g. "reviewer,security"
+    agentcollab_light_model: str | None = None
 
     database_url: str = "sqlite:///./agentcollab.db"
     agentcollab_run_budget_usd: float = 0.50
@@ -41,9 +49,23 @@ class Settings(BaseSettings):
             "openai_compatible": self.agentcollab_api_key,
         }.get(self.agentcollab_provider)
 
+    @property
+    def light_roles(self) -> set[str]:
+        roles = {r.strip() for r in self.agentcollab_light_roles.split(",") if r.strip()}
+        if unknown := roles - set(ROLES):
+            raise ValueError(f"unknown roles in AGENTCOLLAB_LIGHT_ROLES: {sorted(unknown)}")
+        return roles
+
     def model_for(self, role: str) -> str:
+        """Role override, then the light model for light roles, then the global default."""
+        light = None
+        if role in self.light_roles:
+            light = self.agentcollab_light_model or DEFAULT_LIGHT_MODELS.get(
+                self.agentcollab_provider
+            )
         model = (
             getattr(self, f"agentcollab_model_{role}")
+            or light
             or self.agentcollab_model
             or DEFAULT_MODELS.get(self.agentcollab_provider)
         )
