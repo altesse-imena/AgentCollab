@@ -173,3 +173,28 @@ def save_results(label: str, results: list[TaskResult], config: dict, out_dir: P
     path = out_dir / f"{label}.json"
     path.write_text(json.dumps(data, indent=2) + "\n")
     return path
+
+
+def compare(paths: list[Path]) -> str:
+    """A markdown table comparing saved results; changes are relative to the first one."""
+    runs = [json.loads(p.read_text()) for p in paths]
+    base = runs[0]["summary"]
+
+    def change(value: float, base_value: float) -> str:
+        if not base_value or value == base_value:
+            return ""
+        return f" ({(value - base_value) / base_value:+.0%})"
+
+    rows = [
+        "| Config | Pass rate | Avg cost / task | Median time | Avg rounds | Prompt cache |",
+        "|---|---|---|---|---|---|",
+    ]
+    for r in runs:
+        s = r["summary"]
+        passed = round(s["pass_rate"] * s["tasks"])
+        cost = f"${s['avg_cost_usd']:.4f}{change(s['avg_cost_usd'], base['avg_cost_usd'])}"
+        rows.append(
+            f"| {r['label']} | {s['pass_rate']:.0%} ({passed}/{s['tasks']}) | {cost} "
+            f"| {s['median_duration_s']}s | {s['avg_iterations']} | {s['cache_hit_rate']:.0%} |"
+        )
+    return "\n".join(rows)

@@ -43,6 +43,11 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("runs", help="list recent runs")
 
+    cmp_ = sub.add_parser("eval-compare", help="compare saved benchmark results")
+    cmp_.add_argument(
+        "labels", nargs="+", help="labels in evals/results; the first is the baseline"
+    )
+
     exp = sub.add_parser("export", help="save runs and their events to a JSON file")
     exp.add_argument("run_ids", nargs="+")
     exp.add_argument("-o", "--output", type=Path, required=True)
@@ -61,6 +66,11 @@ def main(argv: list[str] | None = None) -> int:
         return _check_tasks(args)
     if args.command in ("export", "import"):
         return _transfer(args, settings)
+    if args.command == "eval-compare":
+        from .evals import EVALS_DIR, compare
+
+        print(compare([EVALS_DIR / "results" / f"{label}.json" for label in args.labels]))
+        return 0
 
     try:
         engine, deps, events = build(settings)

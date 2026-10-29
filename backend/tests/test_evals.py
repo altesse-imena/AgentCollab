@@ -62,3 +62,16 @@ def test_check_flags_a_broken_task(tmp_path):
     )
     problems = check_task(DockerSandbox(timeout_s=20), EvalTask("t", "bug", "p", tmp_path))
     assert any("solution fails" in p for p in problems)
+
+
+def test_compare_table(tmp_path):
+    from agentcollab.evals import TaskResult, compare
+
+    def result(cost, passed):
+        return TaskResult("t", "bug", "passed", passed, cost, 1, 10.0, 4, 1000, 500)
+
+    a = save_results("baseline", [result(0.10, True), result(0.10, False)], {}, tmp_path)
+    b = save_results("light", [result(0.06, True), result(0.06, True)], {}, tmp_path)
+    table = compare([a, b])
+    assert "| baseline | 50% (1/2) | $0.1000 |" in table
+    assert "| light | 100% (2/2) | $0.0600 (-40%) |" in table
