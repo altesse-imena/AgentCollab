@@ -94,7 +94,7 @@ export function RunPage({
               className={cx(
                 'inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300',
                 mode === m
-                  ? 'bg-brand-700 text-white shadow-lg shadow-brand-700/30'
+                  ? 'bg-brand-500 text-on-brand shadow-lg shadow-brand-500/40'
                   : 'text-muted hover:text-ink',
               )}
             >
@@ -109,7 +109,7 @@ export function RunPage({
         {mode === 'watch' ? (
           <>
             <section className="relative overflow-hidden rounded-3xl border border-line bg-card px-4 pt-10 pb-6 backdrop-blur-sm md:px-10">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,rgba(16,185,129,0.14),transparent_65%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,rgba(57,255,20,0.14),transparent_65%)]" />
               <Stage nodes={view.nodes} iteration={view.iteration} className="relative" />
               <div className="relative mt-8 border-t border-line pt-6">
                 <Narration view={view} mode={replaying ? 'replay' : finished ? 'done' : 'live'} />
@@ -134,7 +134,7 @@ export function RunPage({
                           className={cx(
                             'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
                             replaying && speed === s
-                              ? 'bg-brand-700 text-white'
+                              ? 'bg-brand-500 text-on-brand'
                               : 'text-muted hover:bg-hover hover:text-ink',
                           )}
                         >

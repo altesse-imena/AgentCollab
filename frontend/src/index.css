@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Same design language as altesseimena.com, with an emerald accent: Jost headings, Inter text,
+/* Same design language as altesseimena.com, with a neon green accent: Jost headings, Inter text,
    frosted cards, pill buttons, and a light/dark theme (dark by default). */
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -10,17 +10,19 @@
   --font-heading: 'Jost', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Brand accent: emerald green. Solid fills use 700 so white text stays readable. */
-  --color-brand-50: #ecfdf5;
-  --color-brand-100: #d1fae5;
-  --color-brand-200: #a7f3d0;
-  --color-brand-300: #6ee7b7;
-  --color-brand-400: #34d399;
-  --color-brand-500: #10b981;
-  --color-brand-600: #059669;
-  --color-brand-700: #047857;
-  --color-brand-800: #065f46;
-  --color-brand-900: #064e3b;
+  /* Brand accent: neon green (#39ff14). Fills carry near-black text (--color-on-brand);
+     light mode uses the deeper shades for text, since neon on white is unreadable. */
+  --color-brand-50: #f0ffe9;
+  --color-brand-100: #dcffd0;
+  --color-brand-200: #b8ffa3;
+  --color-brand-300: #8cff6b;
+  --color-brand-400: #5fff38;
+  --color-brand-500: #39ff14;
+  --color-brand-600: #2bd60b;
+  --color-brand-700: #1fa608;
+  --color-brand-800: #187d0a;
+  --color-brand-900: #135f0b;
+  --color-on-brand: #04140a;
 
   /* Theme tokens: light values here, dark values under .dark below */
   --color-canvas: #f8fafc; /* page background */
@@ -35,8 +37,8 @@
   --color-muted: #475569;
   --color-faint: #64748b;
   --color-dim: #cbd5e1; /* idle dots, diff gutter */
-  --color-accent: #047857; /* accent text and links */
-  --color-good: #047857;
+  --color-accent: #15803d; /* accent text and links */
+  --color-good: #15803d;
   --color-warn: #b45309;
   --color-bad: #be123c;
   --color-edge: #cbd5e1; /* idle graph edges and grid dots */
@@ -69,8 +71,8 @@
     --color-muted: #9ca3af;
     --color-faint: #6b7280;
     --color-dim: #374151;
-    --color-accent: #6ee7b7;
-    --color-good: #6ee7b7;
+    --color-accent: #5fff38;
+    --color-good: #8cff6b;
     --color-warn: #fcd34d;
     --color-bad: #fda4af;
     --color-edge: #334155;
@@ -96,15 +98,15 @@
   }
 
   ::selection {
-    @apply bg-brand-500/20 text-brand-400;
+    @apply bg-brand-500/30 text-ink;
   }
 }
 
 @utility gradient-text {
   @apply bg-clip-text text-transparent;
-  background-image: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  background-image: linear-gradient(135deg, #2bd60b 0%, #1fa608 50%, #187d0a 100%);
   .dark & {
-    background-image: linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #10b981 100%);
+    background-image: linear-gradient(135deg, #b8ffa3 0%, #5fff38 45%, #39ff14 100%);
   }
 }
 
@@ -114,7 +116,7 @@
 }
 
 @utility pill-primary {
-  @apply pill bg-brand-700 text-white hover:bg-brand-600;
+  @apply pill bg-brand-500 text-on-brand hover:bg-brand-400 hover:shadow-[0_0_28px] hover:shadow-brand-500/45;
 }
 
 @utility pill-outline {

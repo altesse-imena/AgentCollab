@@ -127,12 +127,12 @@ export function Stage({
       >
         <defs>
           <radialGradient id={`${uid}-glow`}>
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+            <stop offset="0%" stopColor="#39ff14" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#39ff14" stopOpacity="0" />
           </radialGradient>
           <linearGradient id={`${uid}-active`} x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#6ee7b7" />
+            <stop offset="0%" stopColor="#39ff14" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#b8ffa3" />
           </linearGradient>
         </defs>
 
@@ -252,7 +252,7 @@ export function Stage({
                 <g transform={`translate(${r * 0.72} ${-r * 0.72})`}>
                   <circle
                     r={11}
-                    className={status === 'done' ? 'fill-brand-600' : 'fill-rose-500'}
+                    className={status === 'done' ? 'fill-brand-500' : 'fill-rose-500'}
                   />
                   {status === 'done' ? (
                     <Check
@@ -261,7 +261,7 @@ export function Stage({
                       width={14}
                       height={14}
                       strokeWidth={3}
-                      className="text-white"
+                      className="text-on-brand"
                     />
                   ) : (
                     <X

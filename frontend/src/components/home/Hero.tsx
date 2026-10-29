@@ -146,7 +146,7 @@ export function Hero({
         transition={{ duration: 0.9, delay: 0.35 }}
         className="relative mx-auto mt-14 max-w-6xl"
       >
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_50%,rgba(16,185,129,0.18),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_50%,rgba(57,255,20,0.18),transparent_60%)]" />
         <Stage nodes={nodes} />
       </motion.div>
 

@@ -35,7 +35,7 @@ export function TryIt({
   return (
     <section className="px-4 pb-24 md:px-8">
       <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl border border-line bg-card p-8 text-center backdrop-blur-sm md:p-12">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(16,185,129,0.16),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(57,255,20,0.16),transparent_60%)]" />
         <h2 className="relative text-3xl text-ink md:text-4xl">
           {live ? 'Give the agents a task' : 'Run it on your own machine'}
         </h2>

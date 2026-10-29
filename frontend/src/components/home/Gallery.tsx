@@ -24,7 +24,7 @@ import { Prose } from '../Prose'
 
 type Kind = Task['kind']
 const KIND_STYLE: Record<Kind, { gradient: string; icon: LucideIcon }> = {
-  feature: { gradient: 'from-brand-700 via-brand-500 to-teal-400', icon: Sparkles },
+  feature: { gradient: 'from-brand-900 via-brand-700 to-brand-500', icon: Sparkles },
   bug: { gradient: 'from-amber-500 via-orange-500 to-rose-500', icon: Bug },
   security: { gradient: 'from-rose-600 via-fuchsia-600 to-violet-600', icon: ShieldAlert },
 }
@@ -85,7 +85,7 @@ export function Gallery({
               className={cx(
                 'rounded-full px-4 py-2 text-sm font-medium transition-all duration-300',
                 filter === kind
-                  ? 'bg-brand-700 text-white shadow-lg shadow-brand-700/25'
+                  ? 'bg-brand-500 text-on-brand shadow-lg shadow-brand-500/35'
                   : 'border border-line text-muted hover:border-brand-500/40 hover:text-ink',
               )}
             >
@@ -172,7 +172,7 @@ function RunCard({
         <span
           className={cx(
             'absolute top-3 right-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm',
-            passed ? 'bg-emerald-500/90 text-white' : 'bg-black/35 text-white',
+            passed ? 'bg-brand-500 text-on-brand' : 'bg-black/35 text-white',
           )}
         >
           {passed ? <CircleCheck className="h-3.5 w-3.5" /> : <CircleX className="h-3.5 w-3.5" />}
