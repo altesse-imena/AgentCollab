@@ -14,11 +14,21 @@ function round(iteration: number, passed: boolean): RunEvent[] {
   return [
     ev('node_started', { node: 'write' }),
     ev('llm_call', {
-      agent: 'code_writer', model: 'gpt-4.1', cost_usd: 0.01, prompt_tokens: 1000,
-      cached_tokens: 200, completion_tokens: 300, latency_ms: 900, cache_hit: false,
+      agent: 'code_writer',
+      model: 'gpt-4.1',
+      cost_usd: 0.01,
+      prompt_tokens: 1000,
+      cached_tokens: 200,
+      completion_tokens: 300,
+      latency_ms: 900,
+      cache_hit: false,
     }),
     ev('node_finished', {
-      node: 'write', iteration, summary: `attempt ${iteration}`, files: ['app.py'], patch: '+x',
+      node: 'write',
+      iteration,
+      summary: `attempt ${iteration}`,
+      files: ['app.py'],
+      patch: '+x',
     }),
     ev('node_started', { node: 'review' }),
     ev('node_started', { node: 'security' }),
@@ -26,12 +36,21 @@ function round(iteration: number, passed: boolean): RunEvent[] {
       node: 'review',
       output: passed
         ? { approved: true, comments: [] }
-        : { approved: false, comments: [{ path: 'app.py', line: 1, severity: 'major', message: 'bug' }] },
+        : {
+            approved: false,
+            comments: [{ path: 'app.py', line: 1, severity: 'major', message: 'bug' }],
+          },
     }),
     ev('node_finished', { node: 'security', error: 'invalid output twice' }),
     ev('node_finished', {
       node: 'run_tests',
-      result: { passed, exit_code: passed ? 0 : 1, output: '', duration_ms: 1200, timed_out: false },
+      result: {
+        passed,
+        exit_code: passed ? 0 : 1,
+        output: '',
+        duration_ms: 1200,
+        timed_out: false,
+      },
     }),
     ev('node_finished', { node: 'judge', iteration, passed, tests_passed: passed }),
   ]

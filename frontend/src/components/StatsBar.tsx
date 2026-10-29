@@ -53,9 +53,7 @@ export function StatsBar({
         <p className="text-[11px] font-normal text-slate-500">of {usd(view.budgetUsd, 2)} budget</p>
       </Stat>
       <Stat label="Model calls">{view.calls.length}</Stat>
-      <Stat label="Tokens">
-        {(view.tokens.prompt + view.tokens.completion).toLocaleString()}
-      </Stat>
+      <Stat label="Tokens">{(view.tokens.prompt + view.tokens.completion).toLocaleString()}</Stat>
       <Stat label="Prompt cache">{Math.round(cacheRate * 100)}% reused</Stat>
     </div>
   )

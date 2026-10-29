@@ -8,14 +8,20 @@ const STEPS = [
   ['Judge', 'passes the round, or sends every failure back to CodeWriter'],
 ]
 
-export function Welcome({ runs, onReplay }: { runs: RunSummary[]; onReplay: (id: string) => void }) {
+export function Welcome({
+  runs,
+  onReplay,
+}: {
+  runs: RunSummary[]
+  onReplay: (id: string) => void
+}) {
   const featured = runs.find((r) => r.status === 'passed')
   return (
     <Panel className="p-8">
       <h2 className="text-xl font-semibold text-white">Watch AI agents collaborate on code</h2>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">
-        Pick a benchmark task on the left, or replay a recorded run. Each run is orchestrated
-        with LangGraph, and every model call is tracked for cost.
+        Pick a benchmark task on the left, or replay a recorded run. Each run is orchestrated with
+        LangGraph, and every model call is tracked for cost.
       </p>
       <ol className="mt-6 grid gap-3 md:grid-cols-2">
         {STEPS.map(([who, what], i) => (

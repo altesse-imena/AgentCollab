@@ -13,7 +13,15 @@ interface Props {
   startError: string | null
 }
 
-export function Sidebar({ config, tasks, runs, selectedRun, onStart, onSelectRun, startError }: Props) {
+export function Sidebar({
+  config,
+  tasks,
+  runs,
+  selectedRun,
+  onStart,
+  onSelectRun,
+  startError,
+}: Props) {
   const [taskId, setTaskId] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
   const chosen = tasks.find((t) => t.id === taskId)
@@ -44,51 +52,50 @@ export function Sidebar({ config, tasks, runs, selectedRun, onStart, onSelectRun
             .
           </p>
         ) : (
-        <div className="space-y-3 p-4">
-          <label className="block text-xs text-slate-400" htmlFor="task">
-            Benchmark task
-          </label>
-          <select
-            id="task"
-            value={taskId ?? ''}
-            onChange={(e) => setTaskId(e.target.value || null)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
-          >
-            <option value="">Choose a task…</option>
-            {(['feature', 'bug', 'security'] as const).map((kind) => (
-              <optgroup key={kind} label={kind[0].toUpperCase() + kind.slice(1)}>
-                {tasks
-                  .filter((t) => t.kind === kind)
-                  .map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.id.replaceAll('_', ' ')}
-                    </option>
-                  ))}
-              </optgroup>
-            ))}
-          </select>
-          {chosen && (
-            <p className="rounded-lg bg-slate-950/70 p-3 text-xs leading-relaxed text-slate-400">
-              <Badge tone={KIND_TONE[chosen.kind]}>{chosen.kind}</Badge>{' '}
-              {chosen.prompt}
-            </p>
-          )}
-          <button
-            type="button"
-            onClick={start}
-            disabled={!taskId || starting}
-            className="w-full rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {starting ? 'Starting…' : 'Run agents'}
-          </button>
-          {startError && <p className="text-xs text-rose-300">{startError}</p>}
-          {config?.runs_per_day && (
-            <p className="text-[11px] text-slate-500">
-              Up to {config.runs_per_day} runs per day, each capped at{' '}
-              {usd(config.run_budget_usd, 2)}.
-            </p>
-          )}
-        </div>
+          <div className="space-y-3 p-4">
+            <label className="block text-xs text-slate-400" htmlFor="task">
+              Benchmark task
+            </label>
+            <select
+              id="task"
+              value={taskId ?? ''}
+              onChange={(e) => setTaskId(e.target.value || null)}
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+            >
+              <option value="">Choose a task…</option>
+              {(['feature', 'bug', 'security'] as const).map((kind) => (
+                <optgroup key={kind} label={kind[0].toUpperCase() + kind.slice(1)}>
+                  {tasks
+                    .filter((t) => t.kind === kind)
+                    .map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.id.replaceAll('_', ' ')}
+                      </option>
+                    ))}
+                </optgroup>
+              ))}
+            </select>
+            {chosen && (
+              <p className="rounded-lg bg-slate-950/70 p-3 text-xs leading-relaxed text-slate-400">
+                <Badge tone={KIND_TONE[chosen.kind]}>{chosen.kind}</Badge> {chosen.prompt}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={start}
+              disabled={!taskId || starting}
+              className="w-full rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {starting ? 'Starting…' : 'Run agents'}
+            </button>
+            {startError && <p className="text-xs text-rose-300">{startError}</p>}
+            {config?.runs_per_day && (
+              <p className="text-[11px] text-slate-500">
+                Up to {config.runs_per_day} runs per day, each capped at{' '}
+                {usd(config.run_budget_usd, 2)}.
+              </p>
+            )}
+          </div>
         )}
       </Panel>
 

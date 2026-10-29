@@ -243,16 +243,12 @@ export function applyEvent(view: RunView, e: RunEvent): RunView {
         },
       ]
       const node = AGENT_NODE[d.agent]
-      item(
-        d.cache_hit ? `${d.model}: answered from cache` : `${d.model} call`,
-        'neutral',
-        {
-          node,
-          detail: d.cache_hit
-            ? 'no cost'
-            : `${d.prompt_tokens.toLocaleString()} in · ${d.completion_tokens.toLocaleString()} out · ${usd(d.cost_usd)}`,
-        },
-      )
+      item(d.cache_hit ? `${d.model}: answered from cache` : `${d.model} call`, 'neutral', {
+        node,
+        detail: d.cache_hit
+          ? 'no cost'
+          : `${d.prompt_tokens.toLocaleString()} in · ${d.completion_tokens.toLocaleString()} out · ${usd(d.cost_usd)}`,
+      })
       break
     }
 

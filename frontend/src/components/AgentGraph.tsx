@@ -110,7 +110,11 @@ export function AgentGraph({ view }: { view: RunView }) {
 
   const edges = useMemo<Edge[]>(() => {
     const color = (target: NodeId) =>
-      view.nodes[target] === 'running' ? '#6985f7' : view.nodes[target] === 'idle' ? '#334155' : '#10b98199'
+      view.nodes[target] === 'running'
+        ? '#6985f7'
+        : view.nodes[target] === 'idle'
+          ? '#334155'
+          : '#10b98199'
     const base = LINKS.map(([source, target]) => ({
       id: `${source}-${target}`,
       source,

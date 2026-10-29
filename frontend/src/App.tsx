@@ -18,11 +18,24 @@ export default function App() {
   const [route, setRoute] = useState(routeFromHash)
   const [startError, setStartError] = useState<string | null>(null)
 
-  const refreshRuns = useCallback(() => api.runs().then(setRuns).catch(() => {}), [])
+  const refreshRuns = useCallback(
+    () =>
+      api
+        .runs()
+        .then(setRuns)
+        .catch(() => {}),
+    [],
+  )
 
   useEffect(() => {
-    api.config().then(setConfig).catch(() => {})
-    api.tasks().then(setTasks).catch(() => {})
+    api
+      .config()
+      .then(setConfig)
+      .catch(() => {})
+    api
+      .tasks()
+      .then(setTasks)
+      .catch(() => {})
     refreshRuns()
     const timer = setInterval(refreshRuns, 5000)
     const onHash = () => setRoute(routeFromHash())
