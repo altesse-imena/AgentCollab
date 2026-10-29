@@ -140,8 +140,10 @@ solution.
 
 The [`Dockerfile`](Dockerfile) builds one image that serves the API and the UI. By default it
 runs **replay-only** and imports real recorded runs from [`demo/runs.json`](demo), so a public
-demo makes no model calls ([how to record them](demo/README.md)). [`railway.json`](railway.json)
-deploys it to Railway with a health check.
+demo makes no model calls ([how to record them](demo/README.md)). [`render.yaml`](render.yaml)
+deploys it to Render's free tier with a health check (free services sleep when idle, so the first
+visit after a while takes about a minute). [`railway.json`](railway.json) does the same for
+Railway.
 
 Live runs need a Docker daemon for the sandbox, so run them on a machine with Docker. For a
 public server that allows live runs, cap spending with:

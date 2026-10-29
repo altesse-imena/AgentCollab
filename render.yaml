@@ -1,0 +1,15 @@
+# Render Blueprint: one free web service running the replay-only demo from the Dockerfile.
+# Free services sleep after ~15 minutes idle; the first visit after that takes about a minute.
+services:
+  - type: web
+    name: agentcollab
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Only used for run links in GitHub App comments. Set it to the service's
+      # onrender.com URL if you connect the GitHub App.
+      - key: AGENTCOLLAB_PUBLIC_URL
+        sync: false
