@@ -1,10 +1,9 @@
-from pathlib import Path
-
 from pydantic import BaseModel, Field
 
 from ..llm import LLMClient, LLMResult, RunBudget
+from .common import load_prompt, render_files
 
-PROMPT = (Path(__file__).parent / "prompts" / "writer.md").read_text(encoding="utf-8")
+PROMPT = load_prompt("writer")
 
 
 class FileEdit(BaseModel):
@@ -19,7 +18,7 @@ class CodeChange(BaseModel):
 
 def build_messages(task: str, context: dict[str, str], feedback: str | None) -> list[dict]:
     # Unchanging content first, so the provider's prompt cache can reuse it across rounds
-    repo = "\n\n".join(f"### {path}\n```\n{body}\n```" for path, body in context.items())
+    repo = render_files(context)
     user = f"# Repository files\n\n{repo or '(empty repository)'}\n\n# Task\n\n{task}"
     if feedback:
         user += f"\n\n# Feedback on your previous attempt\n\n{feedback}"
