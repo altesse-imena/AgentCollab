@@ -143,13 +143,14 @@ export function AgentGraph({ view }: { view: RunView }) {
   }, [view.nodes, view.iteration])
 
   return (
-    <div className="h-[300px] w-full">
+    <div className="h-[150px] w-full sm:h-[300px]">
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.06 }}
+        fitViewOptions={{ padding: 0.06, minZoom: 0.1 }}
+        minZoom={0.1}
         style={{ background: 'transparent' }}
         proOptions={{ hideAttribution: true }}
         nodesConnectable={false}

@@ -52,7 +52,7 @@ export function RunView({ runId, initialSpeed = 0 }: { runId: string; initialSpe
       <Panel title="Agents">
         <AgentGraph view={view} />
       </Panel>
-      <div className="grid min-h-0 gap-4 xl:grid-cols-[380px_1fr]">
+      <div className="grid min-h-0 gap-4 *:min-w-0 xl:grid-cols-[380px_1fr]">
         <Panel title="Timeline" className="flex max-h-[560px] min-h-0 flex-col">
           <div className="min-h-0 flex-1">
             <Timeline items={view.timeline} />

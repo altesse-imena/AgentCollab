@@ -65,7 +65,7 @@ export default function App() {
           GitHub →
         </a>
       </header>
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 *:min-w-0 lg:grid-cols-[320px_1fr]">
         <Sidebar
           tasks={tasks}
           runs={runs}
@@ -74,7 +74,7 @@ export default function App() {
           onSelectRun={(id) => selectRun(id)}
           startError={startError}
         />
-        <main className="min-h-0">
+        <main className={route.runId ? 'order-first min-h-0 lg:order-none' : 'min-h-0'}>
           {route.runId ? (
             <RunView
               key={`${route.runId}-${route.speed}`}
