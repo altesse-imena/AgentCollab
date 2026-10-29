@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     agentcollab_light_model: str | None = None
     agentcollab_context_limit_chars: int = 200_000  # max repo text sent to each agent
 
+    # API server
+    agentcollab_allow_local_repos: bool = False  # let POST /api/runs use any path on this machine
+    agentcollab_max_concurrent_runs: int = 2
+
     database_url: str = "sqlite:///./agentcollab.db"
     agentcollab_run_budget_usd: float = 0.50
 

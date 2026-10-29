@@ -61,7 +61,7 @@ def run_task(
     events: EventLog | None = None,
     run_id: str | None = None,
 ) -> RunOutcome:
-    run_id = run_id or str(uuid.uuid4())
+    run_id = run_id or new_run_id()
     with Session(engine) as s:
         s.add(Run(id=run_id, task=task, budget_usd=budget_usd))
         s.commit()
@@ -128,6 +128,10 @@ def _finish(engine: Engine, events: EventLog | None, state: dict) -> RunOutcome:
             | {"files": sorted(outcome.files)},
         )
     return outcome
+
+
+def new_run_id() -> str:
+    return str(uuid.uuid4())
 
 
 class UnknownRun(LookupError):

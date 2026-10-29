@@ -38,7 +38,7 @@ Each agent can use its own model (`AGENTCOLLAB_MODEL_WRITER`, `..._REVIEWER`, `.
 
 SQLite is used by default. To use Postgres, run `docker compose up -d db` and set `DATABASE_URL` in `.env`.
 
-API server: `.venv/bin/uvicorn agentcollab.main:app --reload`, then `GET /health` and `POST /runs`.
+API server: `.venv/bin/uvicorn agentcollab.main:create_app --factory --reload`.
 
 ## Layout
 
