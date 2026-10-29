@@ -7,8 +7,26 @@ from pathlib import Path
 
 SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", "dist", "build", ".next"}
 TEXT_SUFFIXES = {
-    ".py", ".js", ".ts", ".tsx", ".jsx", ".md", ".toml", ".json", ".yaml", ".yml",
-    ".txt", ".cfg", ".ini", ".html", ".css", ".sh", ".go", ".rs", ".java", ".rb",
+    ".py",
+    ".js",
+    ".ts",
+    ".tsx",
+    ".jsx",
+    ".md",
+    ".toml",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".txt",
+    ".cfg",
+    ".ini",
+    ".html",
+    ".css",
+    ".sh",
+    ".go",
+    ".rs",
+    ".java",
+    ".rb",
 }
 
 

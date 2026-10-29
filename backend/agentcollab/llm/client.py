@@ -1,4 +1,7 @@
-"""The only place that calls a model. Handles retries, output validation, budgets and cost logging."""
+"""The only place that calls a model.
+
+Handles retries, output validation, per-run budgets and cost logging.
+"""
 
 import json
 import re
@@ -128,7 +131,10 @@ class LLMClient:
         resp = self._chat(model, messages, True)
         served = resp.model or model
         cost = cost_usd(
-            served, resp.prompt_tokens, resp.cached_tokens, resp.completion_tokens,
+            served,
+            resp.prompt_tokens,
+            resp.cached_tokens,
+            resp.completion_tokens,
             resp.cache_write_tokens,
         )
         budget.spent_usd += cost or 0.0

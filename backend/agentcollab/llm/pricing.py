@@ -33,7 +33,10 @@ PRICES: dict[str, ModelPrice] = {
 
 
 def price_for(model: str) -> ModelPrice | None:
-    """Exact match, else the longest known prefix (APIs report dated names like gpt-4.1-2025-04-14)."""
+    """Exact match, else the longest known prefix.
+
+    APIs report dated names like gpt-4.1-2025-04-14.
+    """
     if model in PRICES:
         return PRICES[model]
     matches = [name for name in PRICES if model.startswith(name + "-")]

@@ -58,10 +58,12 @@ def test_parse_json_strips_fences():
 
 
 def test_split_system():
-    system, convo = split_system([
-        {"role": "system", "content": "rules"},
-        {"role": "user", "content": "hi"},
-    ])
+    system, convo = split_system(
+        [
+            {"role": "system", "content": "rules"},
+            {"role": "user", "content": "hi"},
+        ]
+    )
     assert system == "rules" and convo == [{"role": "user", "content": "hi"}]
 
 
@@ -70,9 +72,14 @@ def _fake_anthropic_response(stop_reason="end_turn"):
         stop_reason=stop_reason,
         stop_details=SimpleNamespace(explanation="declined"),
         model="claude-opus-5-5",
-        content=[SimpleNamespace(type="thinking"), SimpleNamespace(type="text", text='{"ok": true}')],
+        content=[
+            SimpleNamespace(type="thinking"),
+            SimpleNamespace(type="text", text='{"ok": true}'),
+        ],
         usage=SimpleNamespace(
-            input_tokens=50, cache_read_input_tokens=900, cache_creation_input_tokens=0,
+            input_tokens=50,
+            cache_read_input_tokens=900,
+            cache_creation_input_tokens=0,
             output_tokens=20,
         ),
     )
@@ -86,10 +93,17 @@ def test_anthropic_adapter_maps_usage_and_request():
         sent.update(kwargs)
         return _fake_anthropic_response()
 
-    provider._client = SimpleNamespace(beta=SimpleNamespace(messages=SimpleNamespace(create=create)))
-    resp = provider.chat("claude-opus-5-5", [
-        {"role": "system", "content": "rules"}, {"role": "user", "content": "hi"},
-    ], json_mode=True)
+    provider._client = SimpleNamespace(
+        beta=SimpleNamespace(messages=SimpleNamespace(create=create))
+    )
+    resp = provider.chat(
+        "claude-opus-5-5",
+        [
+            {"role": "system", "content": "rules"},
+            {"role": "user", "content": "hi"},
+        ],
+        json_mode=True,
+    )
     assert resp.text == '{"ok": true}'
     assert (resp.prompt_tokens, resp.cached_tokens, resp.completion_tokens) == (950, 900, 20)
     assert sent["system"] == "rules" and sent["fallbacks"] == "default"
@@ -98,7 +112,10 @@ def test_anthropic_adapter_maps_usage_and_request():
 
 def test_anthropic_refusal_raises():
     provider = AnthropicProvider(api_key="test")
-    provider._client = SimpleNamespace(beta=SimpleNamespace(messages=SimpleNamespace(
-        create=lambda **_: _fake_anthropic_response("refusal"))))
+    provider._client = SimpleNamespace(
+        beta=SimpleNamespace(
+            messages=SimpleNamespace(create=lambda **_: _fake_anthropic_response("refusal"))
+        )
+    )
     with pytest.raises(ProviderRefusal, match="declined"):
         provider.chat("claude-opus-5-5", [{"role": "user", "content": "x"}], json_mode=True)

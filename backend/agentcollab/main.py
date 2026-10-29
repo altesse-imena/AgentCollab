@@ -22,7 +22,7 @@ def health() -> dict:
 
 @app.post("/runs")
 def create_run(req: RunRequest) -> dict:
-    # Local-only for now: runs against a path on this machine. Week 5 adds async runs + live updates.
+    # Local-only for now: runs against a path on this machine
     settings = get_settings()
     try:
         engine, llm = build(settings)
@@ -32,7 +32,11 @@ def create_run(req: RunRequest) -> dict:
     if not repo.is_dir():
         raise HTTPException(400, "repo_path is not a directory")
     outcome = run_task(
-        llm=llm, engine=engine, task=req.task, repo=repo,
-        model=settings.model_for("writer"), budget_usd=settings.agentcollab_run_budget_usd,
+        llm=llm,
+        engine=engine,
+        task=req.task,
+        repo=repo,
+        model=settings.model_for("writer"),
+        budget_usd=settings.agentcollab_run_budget_usd,
     )
     return outcome.__dict__

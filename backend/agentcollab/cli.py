@@ -26,8 +26,12 @@ def main(argv: list[str] | None = None) -> int:
         print(e, file=sys.stderr)
         return 2
     outcome = run_task(
-        llm=llm, engine=engine, task=args.task, repo=args.repo,
-        model=args.model or settings.model_for("writer"), budget_usd=args.budget,
+        llm=llm,
+        engine=engine,
+        task=args.task,
+        repo=args.repo,
+        model=args.model or settings.model_for("writer"),
+        budget_usd=args.budget,
     )
 
     print(outcome.patch or "(no changes)")

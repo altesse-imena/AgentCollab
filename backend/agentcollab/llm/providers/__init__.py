@@ -1,4 +1,7 @@
-"""Model providers. Switch with AGENTCOLLAB_PROVIDER; nothing outside this package imports a vendor SDK."""
+"""Model providers, chosen with AGENTCOLLAB_PROVIDER.
+
+Nothing outside this package imports a vendor SDK.
+"""
 
 from .base import ChatProvider, ProviderRefusal, ProviderResponse, TransientProviderError
 

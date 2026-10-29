@@ -14,8 +14,11 @@ class Answer(BaseModel):
 
 def ask(llm, budget=None):
     return llm.structured(
-        agent="test", model="gpt-4.1", messages=[{"role": "user", "content": "hi"}],
-        schema=Answer, budget=budget or RunBudget("r1", limit_usd=1.0),
+        agent="test",
+        model="gpt-4.1",
+        messages=[{"role": "user", "content": "hi"}],
+        schema=Answer,
+        budget=budget or RunBudget("r1", limit_usd=1.0),
     )
 
 
@@ -29,7 +32,9 @@ def test_valid_reply_is_parsed_and_logged(make_llm, engine):
 
 
 def test_transient_errors_are_retried(make_llm):
-    llm, provider = make_llm([TransientProviderError("429"), TransientProviderError("503"), {"value": 1}])
+    llm, provider = make_llm(
+        [TransientProviderError("429"), TransientProviderError("503"), {"value": 1}]
+    )
     assert ask(llm).output.value == 1
     assert len(provider.calls) == 3
 

@@ -5,14 +5,28 @@ from agentcollab.service import run_task
 
 
 def run(llm, engine, repo, budget=1.0):
-    return run_task(llm=llm, engine=engine, task="add a greet function", repo=repo,
-                    model="gpt-4.1", budget_usd=budget)
+    return run_task(
+        llm=llm,
+        engine=engine,
+        task="add a greet function",
+        repo=repo,
+        model="gpt-4.1",
+        budget_usd=budget,
+    )
 
 
 def test_successful_run_produces_patch_and_saves_run(make_llm, engine, tmp_path):
     (tmp_path / "app.py").write_text("x = 1\n")
-    llm, provider = make_llm([{"summary": "added greet", "files": [
-        {"path": "app.py", "content": "x = 1\n\ndef greet():\n    return 'hi'\n"}]}])
+    llm, provider = make_llm(
+        [
+            {
+                "summary": "added greet",
+                "files": [
+                    {"path": "app.py", "content": "x = 1\n\ndef greet():\n    return 'hi'\n"}
+                ],
+            }
+        ]
+    )
     out = run(llm, engine, tmp_path)
     assert out.status == "passed"
     assert "+def greet():" in out.patch

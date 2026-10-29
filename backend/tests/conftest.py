@@ -19,7 +19,9 @@ class FakeProvider:
         if isinstance(item, Exception):
             raise item
         text = item if isinstance(item, str) else json.dumps(item)
-        return ProviderResponse(text=text, prompt_tokens=1000, cached_tokens=200, completion_tokens=500)
+        return ProviderResponse(
+            text=text, prompt_tokens=1000, cached_tokens=200, completion_tokens=500
+        )
 
 
 @pytest.fixture

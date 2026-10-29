@@ -4,7 +4,9 @@ from .base import ProviderResponse, TransientProviderError
 class OpenAIProvider:
     """OpenAI, or any OpenAI-compatible API (OpenRouter, Groq, Together, Ollama...) via base_url."""
 
-    def __init__(self, api_key: str | None = None, base_url: str | None = None, timeout_s: float = 90.0):
+    def __init__(
+        self, api_key: str | None = None, base_url: str | None = None, timeout_s: float = 90.0
+    ):
         import openai
 
         self._openai = openai

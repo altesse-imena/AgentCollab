@@ -11,7 +11,9 @@ def split_system(messages: list[dict]) -> tuple[str | None, list[dict]]:
 
 
 class AnthropicProvider:
-    def __init__(self, api_key: str | None = None, timeout_s: float = 300.0, max_tokens: int = 16000):
+    def __init__(
+        self, api_key: str | None = None, timeout_s: float = 300.0, max_tokens: int = 16000
+    ):
         import anthropic
 
         self._anthropic = anthropic
