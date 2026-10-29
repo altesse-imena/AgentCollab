@@ -14,8 +14,11 @@ def render_files(files: dict[str, str]) -> str:
 def change_messages(
     prompt: str, task: str, context: dict[str, str], patch: str, changed: dict[str, str]
 ) -> list[dict]:
-    """Messages for agents that inspect a proposed change. Repo context goes first so the
-    provider's prompt cache can share it with the other agents in the same round."""
+    """Messages for agents that inspect a proposed change.
+
+    The stable part (system prompt, then repo files) comes first and the per-round part last,
+    so the provider's prompt cache can reuse the prefix when the same agent runs again.
+    """
     user = (
         f"# Repository files (before the change)\n\n{render_files(context) or '(empty)'}\n\n"
         f"# Task\n\n{task}\n\n"
