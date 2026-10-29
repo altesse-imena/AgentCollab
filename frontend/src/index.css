@@ -127,3 +127,63 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
+
+/* Agent stage: a breathing glow and a slowly turning ring around the working agent */
+.stage-breathe,
+.stage-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.stage-breathe {
+  animation: stage-breathe 2.4s ease-in-out infinite;
+}
+.stage-spin {
+  animation: stage-spin 6s linear infinite;
+}
+@keyframes stage-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+@keyframes stage-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Code drifting behind the hero, as on the portfolio */
+.code-drift {
+  animation: code-drift var(--drift-duration, 24s) linear var(--drift-delay, 0s) infinite;
+  opacity: 0;
+}
+@keyframes code-drift {
+  0% {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  15%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(120px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-breathe,
+  .stage-spin,
+  .code-drift {
+    animation: none;
+  }
+  .code-drift {
+    opacity: 0.6;
+  }
+}
