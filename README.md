@@ -141,8 +141,8 @@ solution.
 **Results:** _not measured yet._ Run `scripts/measure-costs.sh` and paste its table here.
 
 On a free tier, mind the daily caps: one pass of the benchmark uses roughly 150,000–250,000
-tokens, and Groq's free tier allows 200,000 tokens per model per day, so run each pass on a
-separate day (or use a paid key). Calls that hit a daily cap fail straight away with a
+tokens, and Groq's free tier allows 200,000 tokens per model per day, so run one pass per day
+(`ONLY=baseline scripts/measure-costs.sh`, then `ONLY=light-models` the next day) or use a paid key. Calls that hit a daily cap fail straight away with a
 "rate limit" error instead of counting as a wrong answer.
 
 ## Deployment
