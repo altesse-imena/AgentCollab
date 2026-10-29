@@ -79,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.command == "eval":
-        return _run_eval(args, settings, engine, deps)
+        return _run_eval(args, settings, engine, deps, events)
 
     if args.command == "runs":
         with Session(engine) as s:
@@ -154,7 +154,7 @@ def _check_tasks(args) -> int:
     return 1 if failures else 0
 
 
-def _run_eval(args, settings, engine, deps) -> int:
+def _run_eval(args, settings, engine, deps, events) -> int:
     from .evals import EVALS_DIR, load_tasks, run_eval, save_results
 
     tasks = load_tasks(only=args.tasks.split(",") if args.tasks else None)
@@ -164,6 +164,7 @@ def _run_eval(args, settings, engine, deps) -> int:
         engine=engine,
         budget_usd=args.budget,
         max_iterations=args.max_iterations,
+        events=events,
     )
     config = {
         "provider": settings.agentcollab_provider,

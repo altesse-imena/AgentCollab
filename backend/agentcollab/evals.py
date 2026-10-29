@@ -20,6 +20,7 @@ from sqlalchemy import Engine, func, select
 from sqlalchemy.orm import Session
 
 from .db import LLMCall
+from .events import EventLog
 from .graph import Deps
 from .sandbox import Sandbox, TestResult, build_workspace
 from .service import run_task
@@ -106,6 +107,7 @@ def run_eval(
     engine: Engine,
     budget_usd: float,
     max_iterations: int,
+    events: EventLog | None = None,  # pass the deps' log so runs can be replayed as demos
     log=print,
 ) -> list[TaskResult]:
     results = []
@@ -117,6 +119,7 @@ def run_eval(
             outcome = run_task(
                 deps=deps,
                 engine=engine,
+                events=events,
                 task=task.prompt,
                 repo=repo,
                 budget_usd=budget_usd,
