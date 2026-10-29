@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { applyEvent, initialView, type RunView } from './runState'
-import type { RunEvent, RunSummary, Task } from './types'
+import type { PublicConfig, RunEvent, RunSummary, Task } from './types'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -15,6 +15,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  config: () => request<PublicConfig>('/api/config'),
   tasks: () => request<Task[]>('/api/tasks'),
   runs: () => request<RunSummary[]>('/api/runs'),
   run: (id: string) => request<RunSummary>(`/api/runs/${id}`),

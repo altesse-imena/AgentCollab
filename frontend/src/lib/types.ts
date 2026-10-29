@@ -61,3 +61,9 @@ export interface TestResult {
   duration_ms: number
   timed_out: boolean
 }
+
+export interface PublicConfig {
+  live_runs: boolean
+  runs_per_day: number | null
+  run_budget_usd: number
+}

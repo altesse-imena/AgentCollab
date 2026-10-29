@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import type { RunSummary, Task } from '../lib/types'
+import type { PublicConfig, RunSummary, Task } from '../lib/types'
 import { KIND_TONE, STATUS_TONE, cx, timeAgo, usd } from '../lib/format'
 import { Badge, Panel } from './ui'
 
 interface Props {
+  config: PublicConfig | null
   tasks: Task[]
   runs: RunSummary[]
   selectedRun: string | null
@@ -12,7 +13,7 @@ interface Props {
   startError: string | null
 }
 
-export function Sidebar({ tasks, runs, selectedRun, onStart, onSelectRun, startError }: Props) {
+export function Sidebar({ config, tasks, runs, selectedRun, onStart, onSelectRun, startError }: Props) {
   const [taskId, setTaskId] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
   const chosen = tasks.find((t) => t.id === taskId)
@@ -30,6 +31,19 @@ export function Sidebar({ tasks, runs, selectedRun, onStart, onSelectRun, startE
   return (
     <aside className="flex min-h-0 flex-col gap-4">
       <Panel title="Start a run">
+        {config && !config.live_runs ? (
+          <p className="p-4 text-sm leading-relaxed text-slate-400">
+            This demo shows recorded runs of real models. Pick one below to replay it, or run
+            AgentCollab yourself from the{' '}
+            <a
+              className="text-brand-300 hover:underline"
+              href="https://github.com/altesse-imena/AgentCollab"
+            >
+              GitHub repo
+            </a>
+            .
+          </p>
+        ) : (
         <div className="space-y-3 p-4">
           <label className="block text-xs text-slate-400" htmlFor="task">
             Benchmark task
@@ -68,7 +82,14 @@ export function Sidebar({ tasks, runs, selectedRun, onStart, onSelectRun, startE
             {starting ? 'Starting…' : 'Run agents'}
           </button>
           {startError && <p className="text-xs text-rose-300">{startError}</p>}
+          {config?.runs_per_day && (
+            <p className="text-[11px] text-slate-500">
+              Up to {config.runs_per_day} runs per day, each capped at{' '}
+              {usd(config.run_budget_usd, 2)}.
+            </p>
+          )}
         </div>
+        )}
       </Panel>
 
       <Panel title="Recent runs" className="flex min-h-0 flex-1 flex-col">

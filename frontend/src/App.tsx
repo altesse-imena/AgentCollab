@@ -3,7 +3,7 @@ import { RunView } from './components/RunView'
 import { Sidebar } from './components/Sidebar'
 import { Welcome } from './components/Welcome'
 import { api } from './lib/api'
-import type { RunSummary, Task } from './lib/types'
+import type { PublicConfig, RunSummary, Task } from './lib/types'
 
 // #/runs/<id> opens a run; #/runs/<id>/replay/<speed> replays it (shareable demo links)
 function routeFromHash(): { runId: string | null; speed: number } {
@@ -12,6 +12,7 @@ function routeFromHash(): { runId: string | null; speed: number } {
 }
 
 export default function App() {
+  const [config, setConfig] = useState<PublicConfig | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [runs, setRuns] = useState<RunSummary[]>([])
   const [route, setRoute] = useState(routeFromHash)
@@ -20,6 +21,7 @@ export default function App() {
   const refreshRuns = useCallback(() => api.runs().then(setRuns).catch(() => {}), [])
 
   useEffect(() => {
+    api.config().then(setConfig).catch(() => {})
     api.tasks().then(setTasks).catch(() => {})
     refreshRuns()
     const timer = setInterval(refreshRuns, 5000)
@@ -67,6 +69,7 @@ export default function App() {
       </header>
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 *:min-w-0 lg:grid-cols-[320px_1fr]">
         <Sidebar
+          config={config}
           tasks={tasks}
           runs={runs}
           selectedRun={route.runId}
