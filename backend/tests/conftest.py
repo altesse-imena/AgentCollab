@@ -63,7 +63,7 @@ class FakeSandbox:
         self.results = list(results)
         self.workspaces: list[dict[str, str]] = []
 
-    def run_tests(self, workspace):
+    def run_tests(self, workspace, paths=None):
         files = {
             p.relative_to(workspace).as_posix(): p.read_text()
             for p in workspace.rglob("*")

@@ -35,7 +35,9 @@ class TestResult(BaseModel):
 class Sandbox(Protocol):
     """Runs the test suite of a prepared workspace somewhere isolated from this machine."""
 
-    def run_tests(self, workspace: Path) -> TestResult: ...
+    def run_tests(self, workspace: Path, paths: list[str] | None = None) -> TestResult:
+        """Run pytest in the workspace, optionally limited to some test paths."""
+        ...
 
 
 def build_workspace(repo: Path, dest: Path, changes: dict[str, str]) -> Path:

@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .checkpoints import open_checkpointer
-from .config import get_settings
+from .config import ROLES, get_settings
 from .db import Run
 from .deps import MissingAPIKey, build
 from .repo import apply_files
@@ -42,13 +42,26 @@ def main(argv: list[str] | None = None) -> int:
     resume.add_argument("--apply", action="store_true")
 
     sub.add_parser("runs", help="list recent runs")
+
+    ev = sub.add_parser("eval", help="run the benchmark in evals/tasks")
+    ev.add_argument("--label", default="latest", help="results go to evals/results/<label>.json")
+    ev.add_argument("--tasks", help="comma-separated task ids (default: all)")
+    ev.add_argument("--budget", type=float, default=settings.agentcollab_run_budget_usd)
+    ev.add_argument("--max-iterations", type=int, default=3)
+    ev.add_argument("--check", action="store_true", help="validate the tasks; no model calls")
     args = parser.parse_args(argv)
+
+    if args.command == "eval" and args.check:
+        return _check_tasks(args)
 
     try:
         engine, deps = build(settings)
     except MissingAPIKey as e:
         print(e, file=sys.stderr)
         return 2
+
+    if args.command == "eval":
+        return _run_eval(args, settings, engine, deps)
 
     if args.command == "runs":
         with Session(engine) as s:
@@ -84,6 +97,43 @@ def main(argv: list[str] | None = None) -> int:
         repo = Path(_repo_of(outcome, args))
         apply_files(repo, outcome.files)
         print(f"applied {len(outcome.files)} file(s) to {repo}")
+    return 0
+
+
+def _check_tasks(args) -> int:
+    from .evals import check_task, load_tasks
+    from .sandbox import DockerSandbox
+
+    sandbox = DockerSandbox(timeout_s=20)
+    failures = 0
+    for task in load_tasks(only=args.tasks.split(",") if args.tasks else None):
+        problems = check_task(sandbox, task)
+        failures += bool(problems)
+        print(f"{task.id:22} {'ok' if not problems else 'INVALID'}")
+        for p in problems:
+            print(f"    {p}")
+    return 1 if failures else 0
+
+
+def _run_eval(args, settings, engine, deps) -> int:
+    from .evals import EVALS_DIR, load_tasks, run_eval, save_results
+
+    tasks = load_tasks(only=args.tasks.split(",") if args.tasks else None)
+    results = run_eval(
+        tasks,
+        deps=deps,
+        engine=engine,
+        budget_usd=args.budget,
+        max_iterations=args.max_iterations,
+    )
+    config = {
+        "provider": settings.agentcollab_provider,
+        "models": {role: settings.model_for(role) for role in ROLES},
+        "max_iterations": args.max_iterations,
+        "budget_usd": args.budget,
+    }
+    path = save_results(args.label, results, config, EVALS_DIR / "results")
+    print(f"\nsaved {path}")
     return 0
 
 

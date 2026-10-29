@@ -24,7 +24,7 @@ class DockerSandbox:
         self.image, self.timeout_s, self.cpus, self.memory = image, timeout_s, cpus, memory
         self.docker = docker
 
-    def command(self, workspace: Path, name: str) -> list[str]:
+    def command(self, workspace: Path, name: str, paths: list[str] | None = None) -> list[str]:
         return [
             self.docker, "run", "--rm", "--name", name,
             "--network", "none",
@@ -34,16 +34,16 @@ class DockerSandbox:
             "--read-only", "--tmpfs", "/tmp:rw,size=64m",
             "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
             "-v", f"{workspace.resolve()}:/work:rw", "-w", "/work",
-            self.image, *TEST_COMMAND,
+            self.image, *TEST_COMMAND, "--", *(paths or []),
         ]  # fmt: skip
 
-    def run_tests(self, workspace: Path) -> TestResult:
+    def run_tests(self, workspace: Path, paths: list[str] | None = None) -> TestResult:
         workspace.chmod(0o777)  # the container's unprivileged user must be able to write here
         name = f"agentcollab-{uuid.uuid4().hex[:12]}"
         start = time.perf_counter()
         try:
             proc = subprocess.run(
-                self.command(workspace, name),
+                self.command(workspace, name, paths),
                 capture_output=True,
                 text=True,
                 timeout=self.timeout_s,

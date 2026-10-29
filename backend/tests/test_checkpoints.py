@@ -11,11 +11,11 @@ class CrashOnce:
     def __init__(self, inner):
         self.inner, self.crashed = inner, False
 
-    def run_tests(self, workspace):
+    def run_tests(self, workspace, paths=None):
         if not self.crashed:
             self.crashed = True
             raise RuntimeError("server went down")
-        return self.inner.run_tests(workspace)
+        return self.inner.run_tests(workspace, paths)
 
 
 @pytest.fixture
