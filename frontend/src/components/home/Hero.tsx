@@ -50,7 +50,7 @@ function DriftingCode() {
       {SNIPPETS.map((s, i) => (
         <span
           key={s}
-          className="code-drift absolute font-mono text-xs whitespace-nowrap text-ultramarine-500/25 md:text-sm dark:text-ultramarine-400/20"
+          className="code-drift absolute font-mono text-xs whitespace-nowrap text-brand-500/25 md:text-sm dark:text-brand-400/20"
           style={
             {
               left: `${(i * 37) % 85}%`,
@@ -86,7 +86,7 @@ export function Hero({
   return (
     <section className="relative isolate overflow-hidden px-4 pt-16 pb-12 md:px-8 md:pt-24">
       <DriftingCode />
-      <div className="pointer-events-none absolute top-0 right-0 -z-10 h-2/3 w-2/3 bg-radial from-ultramarine-500/10 to-transparent to-70%" />
+      <div className="pointer-events-none absolute top-0 right-0 -z-10 h-2/3 w-2/3 bg-radial from-brand-500/10 to-transparent to-70%" />
       <div className="mx-auto max-w-6xl text-center">
         <motion.p
           initial={{ opacity: 0, y: 12 }}
@@ -94,7 +94,7 @@ export function Hero({
           transition={{ duration: 0.5 }}
           className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-4 py-1.5 text-xs font-medium text-muted backdrop-blur-sm"
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-ultramarine-400" />
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
           Multi-agent coding with LangGraph
         </motion.p>
         <motion.h2
@@ -145,7 +145,7 @@ export function Hero({
         transition={{ duration: 0.9, delay: 0.35 }}
         className="relative mx-auto mt-14 max-w-6xl"
       >
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_50%,rgba(65,102,245,0.18),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_50%,rgba(16,185,129,0.18),transparent_60%)]" />
         <Stage nodes={nodes} />
       </motion.div>
 

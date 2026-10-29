@@ -6,7 +6,7 @@ import { Prose } from '../Prose'
 
 const DOT: Record<Tone, string> = {
   neutral: 'bg-faint',
-  info: 'bg-ultramarine-400',
+  info: 'bg-brand-400',
   good: 'bg-emerald-400',
   warn: 'bg-amber-400',
   bad: 'bg-rose-400',
@@ -69,7 +69,7 @@ export function RoundProgress({ view }: { view: RunView }) {
               <motion.div
                 className={cx(
                   'h-full rounded-full',
-                  passed ? 'bg-emerald-400' : done ? 'bg-amber-400/80' : 'bg-ultramarine-400',
+                  passed ? 'bg-emerald-400' : done ? 'bg-amber-400/80' : 'bg-brand-400',
                   active && 'animate-pulse',
                 )}
                 initial={false}

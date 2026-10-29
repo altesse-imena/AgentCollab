@@ -9,7 +9,7 @@ export function Prose({ text }: { text: string | null | undefined }) {
         part.startsWith('`') && part.endsWith('`') && part.length > 2 ? (
           <code
             key={i}
-            className="rounded-md bg-ultramarine-500/10 px-1.5 py-0.5 font-mono text-[0.85em] text-accent"
+            className="rounded-md bg-brand-500/10 px-1.5 py-0.5 font-mono text-[0.85em] text-accent"
           >
             {part.slice(1, -1)}
           </code>

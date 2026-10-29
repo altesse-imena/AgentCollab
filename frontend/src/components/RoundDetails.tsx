@@ -74,7 +74,7 @@ export function RoundDetails({ rounds }: { rounds: Round[] }) {
               onClick={() => setTab(t)}
               className={cx(
                 'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                t === tab ? 'bg-ultramarine-600 text-white' : 'text-muted hover:text-ink',
+                t === tab ? 'bg-brand-700 text-white' : 'text-muted hover:text-ink',
               )}
             >
               {t}

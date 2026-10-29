@@ -44,7 +44,7 @@ export function StatsBar({
             <div
               className={cx(
                 'h-full rounded-full transition-all',
-                budgetUsed > 0.85 ? 'bg-rose-400' : 'bg-ultramarine-400',
+                budgetUsed > 0.85 ? 'bg-rose-400' : 'bg-brand-400',
               )}
               style={{ width: `${budgetUsed * 100}%` }}
             />

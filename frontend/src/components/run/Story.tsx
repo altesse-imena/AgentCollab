@@ -42,7 +42,7 @@ function Chapter({
       className="relative grid gap-6 md:grid-cols-[120px_1fr]"
     >
       <div className="flex items-center gap-3 md:sticky md:top-24 md:flex-col md:items-start md:self-start">
-        <span className="font-heading text-5xl leading-none text-ultramarine-500/40 md:text-6xl">
+        <span className="font-heading text-5xl leading-none text-brand-500/40 md:text-6xl">
           {String(n).padStart(2, '0')}
         </span>
         <span className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-card text-accent">
@@ -73,7 +73,7 @@ function Quote({
           ? 'border-rose-400'
           : tone === 'warn'
             ? 'border-amber-400'
-            : 'border-ultramarine-400',
+            : 'border-brand-400',
       )}
     >
       {children}

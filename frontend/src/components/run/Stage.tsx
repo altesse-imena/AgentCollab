@@ -80,14 +80,14 @@ function feedbackPath(layout: Layout) {
 
 const RING: Record<NodeStatus, string> = {
   idle: 'stroke-line-strong',
-  running: 'stroke-ultramarine-400',
-  done: 'stroke-emerald-400/80',
+  running: 'stroke-brand-400',
+  done: 'stroke-brand-500/35',
   failed: 'stroke-rose-400/80',
 }
 const ICON: Record<NodeStatus, string> = {
   idle: 'text-faint',
-  running: 'text-ultramarine-300',
-  done: 'text-emerald-400',
+  running: 'text-accent',
+  done: 'text-body',
   failed: 'text-rose-400',
 }
 
@@ -127,16 +127,12 @@ export function Stage({
       >
         <defs>
           <radialGradient id={`${uid}-glow`}>
-            <stop offset="0%" stopColor="#4166f5" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#4166f5" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id={`${uid}-glow-done`}>
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.55" />
             <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
           </radialGradient>
           <linearGradient id={`${uid}-active`} x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stopColor="#4166f5" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#8fa4fa" />
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#6ee7b7" />
           </linearGradient>
         </defs>
 
@@ -168,7 +164,7 @@ export function Stage({
               textAnchor="middle"
               className={cx(
                 'font-sans text-[13px] tracking-wide uppercase',
-                looped ? 'fill-amber-400' : 'fill-faint',
+                looped ? 'fill-warn' : 'fill-faint',
               )}
             >
               {iteration > 1 ? `feedback loop · round ${iteration}` : 'feedback loop'}
@@ -191,12 +187,12 @@ export function Stage({
                 stroke={active ? `url(#${uid}-active)` : undefined}
                 className={cx(
                   'transition-all duration-500',
-                  !active && (done ? 'stroke-emerald-400/45' : 'stroke-line-strong'),
+                  !active && (done ? 'stroke-brand-500/30' : 'stroke-line-strong'),
                 )}
               />
               {active &&
                 [0, 0.45, 0.9].map((begin) => (
-                  <circle key={begin} r={4.5} className="fill-ultramarine-300">
+                  <circle key={begin} r={4.5} className="fill-brand-300">
                     <animateMotion dur="1.35s" begin={`${begin}s`} repeatCount="indefinite">
                       <mpath href={`#${id}`} />
                     </animateMotion>
@@ -224,11 +220,10 @@ export function Stage({
                     strokeWidth={2}
                     strokeDasharray="4 10"
                     strokeLinecap="round"
-                    className="stage-spin stroke-ultramarine-300"
+                    className="stage-spin stroke-brand-300"
                   />
                 </>
               )}
-              {status === 'done' && <circle r={r * 1.7} fill={`url(#${uid}-glow-done)`} />}
               <circle
                 r={r}
                 strokeWidth={status === 'idle' ? 1.5 : 2.5}
@@ -241,7 +236,7 @@ export function Stage({
                   strokeWidth={1}
                   className={cx(
                     'transition-all duration-500',
-                    status === 'running' ? 'stroke-ultramarine-400/50' : 'stroke-line/80',
+                    status === 'running' ? 'stroke-brand-400/50' : 'stroke-line/80',
                   )}
                 />
               )}
@@ -257,7 +252,7 @@ export function Stage({
                 <g transform={`translate(${r * 0.72} ${-r * 0.72})`}>
                   <circle
                     r={11}
-                    className={status === 'done' ? 'fill-emerald-500' : 'fill-rose-500'}
+                    className={status === 'done' ? 'fill-brand-600' : 'fill-rose-500'}
                   />
                   {status === 'done' ? (
                     <Check
@@ -301,7 +296,7 @@ export function Stage({
                   textAnchor="middle"
                   className={cx(
                     'font-sans text-[10px] font-semibold tracking-[0.2em]',
-                    status === 'running' ? 'fill-ultramarine-300' : 'fill-faint',
+                    status === 'running' ? 'fill-accent' : 'fill-faint',
                   )}
                 >
                   AI AGENT

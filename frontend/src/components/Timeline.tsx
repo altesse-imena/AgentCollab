@@ -4,7 +4,7 @@ import type { TimelineItem, Tone } from '../lib/runState'
 
 const DOT: Record<Tone, string> = {
   neutral: 'bg-dim',
-  info: 'bg-ultramarine-400',
+  info: 'bg-brand-400',
   good: 'bg-emerald-400',
   warn: 'bg-amber-400',
   bad: 'bg-rose-400',

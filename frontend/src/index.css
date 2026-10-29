@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Same design language as altesseimena.com: ultramarine accent, Jost headings, Inter text,
+/* Same design language as altesseimena.com, with an emerald accent: Jost headings, Inter text,
    frosted cards, pill buttons, and a light/dark theme (dark by default). */
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -10,17 +10,17 @@
   --font-heading: 'Jost', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Brand accent, built around ultramarine blue (#4166F5) */
-  --color-ultramarine-50: #f0f3ff;
-  --color-ultramarine-100: #dde3fe;
-  --color-ultramarine-200: #bac8fc;
-  --color-ultramarine-300: #8fa4fa;
-  --color-ultramarine-400: #6985f7;
-  --color-ultramarine-500: #4166f5;
-  --color-ultramarine-600: #2548e4;
-  --color-ultramarine-700: #1c38c4;
-  --color-ultramarine-800: #1a2e9e;
-  --color-ultramarine-900: #152379;
+  /* Brand accent: emerald green. Solid fills use 700 so white text stays readable. */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
 
   /* Theme tokens: light values here, dark values under .dark below */
   --color-canvas: #f8fafc; /* page background */
@@ -35,7 +35,7 @@
   --color-muted: #475569;
   --color-faint: #64748b;
   --color-dim: #cbd5e1; /* idle dots, diff gutter */
-  --color-accent: #1c38c4; /* accent text and links */
+  --color-accent: #047857; /* accent text and links */
   --color-good: #047857;
   --color-warn: #b45309;
   --color-bad: #be123c;
@@ -69,7 +69,7 @@
     --color-muted: #9ca3af;
     --color-faint: #6b7280;
     --color-dim: #374151;
-    --color-accent: #8fa4fa;
+    --color-accent: #6ee7b7;
     --color-good: #6ee7b7;
     --color-warn: #fcd34d;
     --color-bad: #fda4af;
@@ -96,15 +96,15 @@
   }
 
   ::selection {
-    @apply bg-ultramarine-500/20 text-ultramarine-400;
+    @apply bg-brand-500/20 text-brand-400;
   }
 }
 
 @utility gradient-text {
   @apply bg-clip-text text-transparent;
-  background-image: linear-gradient(135deg, #4166f5 0%, #2548e4 50%, #1c38c4 100%);
+  background-image: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
   .dark & {
-    background-image: linear-gradient(135deg, #8fa4fa 0%, #6985f7 50%, #4166f5 100%);
+    background-image: linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #10b981 100%);
   }
 }
 
@@ -114,11 +114,11 @@
 }
 
 @utility pill-primary {
-  @apply pill bg-ultramarine-600 text-white hover:bg-ultramarine-500;
+  @apply pill bg-brand-700 text-white hover:bg-brand-600;
 }
 
 @utility pill-outline {
-  @apply pill border border-line-strong hover:border-ultramarine-500/50 hover:bg-hover;
+  @apply pill border border-line-strong hover:border-brand-500/50 hover:bg-hover;
 }
 
 /* Smooth colour change when switching theme, without animating the first paint */

@@ -24,9 +24,9 @@ import { Prose } from '../Prose'
 
 type Kind = Task['kind']
 const KIND_STYLE: Record<Kind, { gradient: string; icon: LucideIcon }> = {
-  feature: { gradient: 'from-ultramarine-600 via-ultramarine-500 to-sky-500', icon: Sparkles },
+  feature: { gradient: 'from-brand-700 via-brand-500 to-teal-400', icon: Sparkles },
   bug: { gradient: 'from-amber-500 via-orange-500 to-rose-500', icon: Bug },
-  security: { gradient: 'from-rose-600 via-fuchsia-600 to-ultramarine-600', icon: ShieldAlert },
+  security: { gradient: 'from-rose-600 via-fuchsia-600 to-violet-600', icon: ShieldAlert },
 }
 const FILTERS: [Kind | 'all', string][] = [
   ['all', 'All runs'],
@@ -66,7 +66,7 @@ export function Gallery({
 
   return (
     <section id="runs" className="relative px-4 py-20 md:px-8">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-1/2 bg-linear-to-b from-ultramarine-500/5 to-transparent dark:from-ultramarine-500/10" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-1/2 bg-linear-to-b from-brand-500/5 to-transparent dark:from-brand-500/10" />
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
           <h2 className="text-4xl text-ink md:text-5xl">Recorded runs</h2>
@@ -85,8 +85,8 @@ export function Gallery({
               className={cx(
                 'rounded-full px-4 py-2 text-sm font-medium transition-all duration-300',
                 filter === kind
-                  ? 'bg-ultramarine-600 text-white shadow-lg shadow-ultramarine-600/25'
-                  : 'border border-line text-muted hover:border-ultramarine-500/40 hover:text-ink',
+                  ? 'bg-brand-700 text-white shadow-lg shadow-brand-700/25'
+                  : 'border border-line text-muted hover:border-brand-500/40 hover:text-ink',
               )}
             >
               {label}
@@ -101,11 +101,11 @@ export function Gallery({
                 key={r.id}
                 type="button"
                 onClick={() => onOpen(r.id, 'watch')}
-                className="flex items-center gap-3 rounded-full border border-ultramarine-500/40 bg-ultramarine-500/10 px-4 py-2 text-left text-sm text-body hover:bg-ultramarine-500/15"
+                className="flex items-center gap-3 rounded-full border border-brand-500/40 bg-brand-500/10 px-4 py-2 text-left text-sm text-body hover:bg-brand-600/15"
               >
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ultramarine-400 opacity-70" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-ultramarine-400" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-70" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-400" />
                 </span>
                 <span className="font-medium text-ink">Live now:</span>
                 <span className="truncate">{titleFor(r.task, tasks)}</span>
@@ -151,7 +151,7 @@ function RunCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.45, delay: (index % 3) * 0.08 }}
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-line bg-card shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-ultramarine-500/40 hover:shadow-xl dark:shadow-black/20"
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-line bg-card shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl dark:shadow-black/20"
       onClick={() => onOpen(run.id, 'watch')}
     >
       <div

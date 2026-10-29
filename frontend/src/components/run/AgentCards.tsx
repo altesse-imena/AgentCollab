@@ -34,19 +34,19 @@ export function AgentCards({ view }: { view: RunView }) {
             className={cx(
               'relative overflow-hidden rounded-2xl border bg-card p-5 backdrop-blur-sm transition-all duration-500',
               running
-                ? 'border-ultramarine-400/60 shadow-[0_0_40px_-8px] shadow-ultramarine-500/50'
+                ? 'border-brand-400/60 shadow-[0_0_40px_-8px] shadow-brand-500/50'
                 : 'border-line',
             )}
           >
             {running && (
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-ultramarine-400 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-brand-400 to-transparent" />
             )}
             <div className="flex items-center gap-3">
               <span
                 className={cx(
                   'flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-500',
                   running
-                    ? 'border-ultramarine-400/60 bg-ultramarine-500/15 text-accent'
+                    ? 'border-brand-400/60 bg-brand-500/15 text-accent'
                     : 'border-line bg-sunken text-muted',
                 )}
               >

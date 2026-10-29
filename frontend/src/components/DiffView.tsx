@@ -5,7 +5,7 @@ const LINE_STYLE = {
   add: 'bg-emerald-500/10 text-good',
   del: 'bg-rose-500/10 text-bad',
   ctx: 'text-muted',
-  hunk: 'bg-ultramarine-500/10 text-accent',
+  hunk: 'bg-brand-500/10 text-accent',
 }
 
 export function DiffView({ patch }: { patch: string | null }) {

@@ -3,7 +3,7 @@ import { type BadgeTone, cx } from '../lib/format'
 
 const BADGE_TONES: Record<BadgeTone, string> = {
   neutral: 'bg-hover text-body ring-line-strong',
-  info: 'bg-ultramarine-500/15 text-accent ring-ultramarine-500/30',
+  info: 'bg-brand-500/15 text-accent ring-brand-500/30',
   good: 'bg-emerald-500/15 text-good ring-emerald-500/30',
   warn: 'bg-amber-500/15 text-warn ring-amber-500/30',
   bad: 'bg-rose-500/15 text-bad ring-rose-500/30',
@@ -36,7 +36,7 @@ export function Panel({
   return (
     <section
       className={cx(
-        'rounded-xl border border-line bg-card shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-colors duration-300 hover:border-ultramarine-500/30 dark:shadow-black/20',
+        'rounded-xl border border-line bg-card shadow-lg shadow-slate-200/50 backdrop-blur-sm transition-colors duration-300 hover:border-brand-500/30 dark:shadow-black/20',
         className,
       )}
     >
